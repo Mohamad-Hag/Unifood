@@ -1,0 +1,28 @@
+.recent-order-card-container
+{
+    padding: 20px;
+    background-color: #eee;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;    
+}
+.recent-order-card-container time
+{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.recent-order-card-container time i
+{
+
+}
+.recent-order-card-container span
+{
+    color: var(--success-color);
+}
+.recent-order-card-container span i
+{
+    
+}
