@@ -15,6 +15,10 @@
 {
     background: #ccc;
 }
+.icon-btn:focus
+{
+    box-shadow: 0 0 0 3px #23314240;
+}
 .icon-btn:hover .tool-tip
 {
     visibility: visible;
@@ -26,14 +30,17 @@
     position: absolute;
     top: 0px;
     left: 30px;
-    background: var(--error-color);
+    box-sizing: border-box;
+    min-height: 15px;
+    min-width: 15px;
+    background: var(--error-color);    
     padding: 0 4px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 100px;    
     color: white;
-    font-size: 12px;    
+    font-size: 10px;    
     margin: 0;
 }
 @media screen and (max-width: 800px)
@@ -43,5 +50,9 @@
         visibility: hidden;
         opacity: 0;
         top: 100%;        
+    }
+    .icon-btn:focus
+    {
+        box-shadow: unset;
     }
 }

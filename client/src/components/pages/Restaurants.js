@@ -9,6 +9,8 @@ import Axios from "axios";
 import CircleLoader from "../loaders/CircleLoader";
 import Footer from "../fixtures/Footer";
 import IconButton from "../inputs/IconButton";
+import Cookies from "../assitance-methods/Cookies";
+import getHost from "../assitance-methods/getHost";
 
 class Restaurants extends Component {
   constructor(props) {
@@ -23,25 +25,26 @@ class Restaurants extends Component {
       notificationsCount: null,
       cartCount: null,
       categories: [],
-      products: [],
+      restaurants: [],
       expandMenuIcon: "fa fa-chevron-up",
     };
 
     // Binding Methods
     this.notificationsClosed = this.notificationsClosed.bind(this);
     this.getNotifications = this.getNotifications.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
     this.notificationsClicked = this.notificationsClicked.bind(this);
     this.searchClicked = this.searchClicked.bind(this);
     this.getCategories = this.getCategories.bind(this);
-    this.getProducts = this.getProducts.bind(this);
+    this.getRestaurants = this.getRestaurants.bind(this);
     this.getchangeSelectedItemToIntersected =
       this.changeSelectedItemToIntersected.bind(this);
     this.expandMenuClicked = this.expandMenuClicked.bind(this);
   }
-  expandMenuClicked()
-  {
+  expandMenuClicked() {
     let menu = document.querySelector("#categories-sidebar");
-    if (this.state.expandMenuIcon.includes("up")) this.setState({expandMenuIcon: "fa fa-chevron-down"});
+    if (this.state.expandMenuIcon.includes("up"))
+      this.setState({ expandMenuIcon: "fa fa-chevron-down" });
     else this.setState({ expandMenuIcon: "fa fa-chevron-up" });
     menu.classList.toggle("categories-sidebar-open");
   }
@@ -55,45 +58,55 @@ class Restaurants extends Component {
       this.setState({ isNotificationsOpen: "false" });
     }
   }
-  getProducts() {
-    Axios.get("https://fakestoreapi.com/products").then((response) => {
+  getCategories() {
+    Axios.post(`${getHost()}/customer/getcategories`).then((response) => {
       let data = response.data;
-      this.setState({ products: data });
+      this.setState({ categories: data });
     });
   }
-  getCategories() {
-    Axios.get("https://fakestoreapi.com/products/categories").then(
-      (response) => {
-        let data = response.data;
-        let newData = [];
-        data.forEach((element, i) => {
-          newData.push({
-            text: data[i],
-            to: `#category${i}`,
-            isActive: i === 0 ? "true" : "false",
-          });          
+  getRestaurants() {
+    Axios.get(`${getHost()}/customer/getrestaurants`).then((response) => {
+      let data = response.data;
+      let newData = [];
+      data.forEach((element, i) => {
+        newData.push({
+          id: data[i].ID,
+          text: data[i].Name,
+          to: `#restaurant${i}`,
+          isActive: i === 0 ? "true" : "false",
         });
-        this.setState({ categories: newData }, () => {
-          document.querySelector("#restaurants-loader").style.display = "none";
-        });
-      }
-    );
+      });
+      this.setState({ restaurants: newData }, () => {
+        document.querySelector("#restaurants-loader").style.display = "none";
+      });
+    });
   }
   getNotifications() {
-    let notifications = [];
-    let pro = new Promise((resolve) => {
-      for (let i = 0; i < 10; i++) {
-        notifications.push({
-          from: "Deep House",
-          description: "You're order confirmed successfully.",
-          time: "5 min ago",
-          isRead: "false",
-          markAsReadOnClick: this.notificationMarkAsReadClicked,
-        });
-      }
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    let pro = new Promise(async (resolve) => {
+      let notifications = [];
+      await Axios.post(getNotificationsAPI, postData).then((response) => {
+        let data = response.data;
+        let markAsReadOnClick = function () {
+          alert("hello");
+        };
+        data.markAsReadOnClick = markAsReadOnClick;
+        notifications = data;
+      });
       resolve(notifications);
     });
     return pro;
+  }
+  async setNotificationsCount() {
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    await Axios.post(getNotificationsAPI, postData).then((response) => {
+      let data = response.data;
+      this.setState({ notificationsCount: data.length });
+    });
   }
   notificationsClicked() {
     this.setState({ notificationsCount: null });
@@ -112,18 +125,19 @@ class Restaurants extends Component {
       let observer = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            let newCategories = this.state.categories.map((element, i) => {
+            let newCategories = this.state.restaurants.map((element, i) => {
               let isActive;
               if (element.to === "#" + entry.target.getAttribute("id"))
                 isActive = "true";
               else isActive = "false";
               return {
+                id: element.id,
                 text: element.text,
                 to: element.to,
                 isActive: isActive,
               };
             });
-            this.setState({ categories: newCategories });
+            this.setState({ restaurants: newCategories });
           }
         });
       }, options);
@@ -133,9 +147,10 @@ class Restaurants extends Component {
     }, 1000);
   }
   componentDidMount() {
-    this.setState({ cartCount: "1", notificationsCount: "2" });
+    this.setState({ cartCount: "1"});
+    this.setNotificationsCount();
     this.getCategories();
-    this.getProducts();
+    this.getRestaurants();
     this.changeSelectedItemToIntersected();
   }
   componentDidUpdate() {}
@@ -164,25 +179,34 @@ class Restaurants extends Component {
           <div id="restaurants-loader">
             <CircleLoader isActive="true" />
           </div>
-          <ItemsSidebar id="categories-sidebar" items={this.state.categories} />
+          <ItemsSidebar
+            id="categories-sidebar"
+            items={this.state.restaurants}
+          />
           <div id="restaurants-categories-outer">
             <div id="restaurants-categories-container">
-              {this.state.categories.map((category, i) => {
+              {this.state.restaurants.map((restaurant, i) => {
                 return (
                   <div className="resturant-categories">
-                    <h1 id={`category${i}`} className="restaurant-name">
-                      {category.text}
+                    <h1 id={`restaurant${i}`} className="restaurant-name">
+                      {restaurant.text}
                     </h1>
                     <div className="resturant-categories-inner">
-                      {this.state.products.filter((element) => element.category === category.text).map((prodcut) => {
-                        return (
-                          <CategoryCard
-                            photo={prodcut.image}
-                            category={prodcut.title}
-                            description={prodcut.description}
-                          />
-                        );
-                      })}
+                      {this.state.categories
+                        .filter(
+                          (element) => element.RestaurantID === restaurant.id
+                        )
+                        .map((prodcut) => {
+                          return (
+                            <CategoryCard
+                              key={prodcut.ID}
+                              photo={prodcut.Image}
+                              category={prodcut.Name}
+                              description={prodcut.Description}
+                              restaurantName={restaurant.text}                              
+                            />
+                          );
+                        })}
                     </div>
                   </div>
                 );

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
 * {
   padding: 0;
   margin: 0;
@@ -5,7 +6,7 @@
   text-decoration: none !important;
   outline: none;
   color: var(--text-color);
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   font-size: 18px;
 }
 :root {
@@ -14,7 +15,7 @@
   --text-color: #373d3f;
   --secondry-text-color: #ffffff;
   --opacity-box-color: #70707060;
-  --opacity-box-color-: #eeeeee90;
+  --opacity-box-color-: #ffffff95;
   --primary-background: #eeeeee10;
 
   /* Alerts Colors */
@@ -39,19 +40,31 @@
   border: none;
 }
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
+}
+*:not(body)::-webkit-scrollbar-thumb
+{
+    background-color: transparent;
+}
+*:not(body):hover::-webkit-scrollbar-thumb
+{
+  background-color: #ccc;
 }
 ::-webkit-scrollbar-track {
-  background: none;
+  background-color: transparent;  
 }
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 5px;
-  padding: 5px;
+  background-color: #ccc;
+  border-radius: 30px;
+  transition: .3s;
+  box-sizing: border-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: hsl(0, 0%, 60%);
+}
+::-webkit-scrollbar-thumb:active {
+  background: hsl(0, 0%, 50%);
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -105,4 +118,11 @@ input {
   -webkit-user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
+}
+@media screen and (max-width: 800px)
+{
+  *:not(body)::-webkit-scrollbar-thumb
+  {
+    background-color: #ccc;
+  }  
 }

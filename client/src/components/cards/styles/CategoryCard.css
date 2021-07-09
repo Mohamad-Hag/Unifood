@@ -15,6 +15,7 @@
     border-radius: 5px;
     object-position: center;
     object-fit: cover;        
+    cursor: pointer;
 }
 .category-card-image-loader
 {

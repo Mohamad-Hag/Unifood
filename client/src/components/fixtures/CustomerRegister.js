@@ -9,10 +9,13 @@ import TextBox from "../inputs/TextBox";
 import PasswordBox from "../inputs/PasswordBox";
 import EntryHeader from "../fixtures/EntryHeader";
 import CustomerEnter from "./CustomerEnter";
+import moduleName from "module";
 
 // Assets
 import SignInCustomerImg from "../../assets/vectors/SignInCustomer.svg";
 import SearchSelectPopup from "../popups/SearchSelectPopup";
+import Axios from "axios";
+import getHost from "../assitance-methods/getHost";
 
 class CustomerRegister extends Component {
   constructor(props) {
@@ -20,12 +23,13 @@ class CustomerRegister extends Component {
 
     // State Object
     this.state = {
+      loader: false,
       errors: {
         name: "",
         id: "",
         password: "",
         general: "",
-      },      
+      },
     };
 
     //Bindings Methods
@@ -77,18 +81,38 @@ class CustomerRegister extends Component {
       ).getPropertyValue("display") === "none"
     ) {
       this.Register(nameValue, idValue, passwordValue);
-      console.log("Validated Successfully!");
     }
   }
 
   // Tries to register a new user with his name, id and password.
   Register(name, id, password) {
-    // Sendeing a request using axios to the server api goes here...
+    const userData = {
+      name: name,
+      id: id,
+      password: password,
+    };
+    this.setState({ loader: true });
+    Axios.post(`${getHost()}/customer/signup`, userData).then((response) => {
+      this.setState({ loader: false });
+      let data = response.data;
+      let hasError = data.hasError;
+      let message = data.message;
+      if (hasError) {
+        let errors = this.state.errors;
+        errors.general = message;
+        this.setState({ errors: errors });
+        return;
+      }
+      let id = JSON.parse(data.data).userID;
+      this.goToCustomerEnter();
+    });
   }
   // Triggered when name field text changed to a new value.
   nameFieldInputed(e) {
     let errors = this.state.errors;
     let nameError = $("#name-error");
+    errors.general = "";
+    this.setState({ errors: errors });
 
     if (e.currentTarget.value !== "") {
       $("#name-error").hide();
@@ -107,6 +131,8 @@ class CustomerRegister extends Component {
     let senderValue = e.currentTarget.value;
     let isMatch = onlyNumbersRegex.test(senderValue);
     let errors = this.state.errors;
+    errors.general = "";
+    this.setState({ errors: errors });
 
     if (isMatch) {
       $("#id-error").hide();
@@ -125,6 +151,8 @@ class CustomerRegister extends Component {
     let senderValue = e.currentTarget.value;
     let isMatch = passwordRegex.test(senderValue);
     let errors = this.state.errors;
+    errors.general = "";
+    this.setState({ errors: errors });
 
     if (isMatch) {
       $("#password-error").hide();
@@ -171,6 +199,15 @@ class CustomerRegister extends Component {
             <img src={SignInCustomerImg} draggable="false" />
           </div>
           <form id="form-register" noValidate onSubmit={this.registerSubmitted}>
+            <div
+              id="form-general-error"
+              style={{
+                display: this.state.errors.general !== "" ? "flex" : "none",
+              }}
+            >
+              <i className="fa fa-exclamation-circle"></i>
+              {this.state.errors.general}
+            </div>
             <TextBox
               inputId="name-in"
               errorId="name-error"
@@ -178,6 +215,7 @@ class CustomerRegister extends Component {
               placeholder="Name"
               type="text"
               onInput={this.nameFieldInputed}
+              autoComplete="off"
             />
             <TextBox
               inputId="id-in"
@@ -186,6 +224,7 @@ class CustomerRegister extends Component {
               error={this.state.errors.id}
               placeholder="ID Number"
               type="number"
+              autoComplete="off"
             />
             <PasswordBox
               inputId="password-in"
@@ -197,6 +236,7 @@ class CustomerRegister extends Component {
             <DefaultButton
               text="Enter&nbsp;&nbsp;&nbsp;"
               inputType="submit"
+              loader={this.state.loader}
               iconClass="fa fa-arrow-right"
             />
           </form>

@@ -2,21 +2,64 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="190d4ab6-5d54-47a0-87ec-c66b9bf32d9b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/client/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/public/logo192.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/public/logo512.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/public/robots.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/logo.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/setupTests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/.babelrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/.editorconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/.travis.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/CHANGELOG.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/CONTRIBUTING.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/bower.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/demo/async.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/demo/css/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/demo/simple.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/dist/aos.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/dist/aos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/karma.conf.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/postcss.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/aos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/helpers/calculateOffset.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/helpers/detector.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/helpers/elements.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/helpers/handleScroll.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/helpers/prepare.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/libs/observer.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/js/libs/offset.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/sass/_animations.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/sass/_core.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/sass/_easing.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/src/sass/aos.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/aos.spec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/calculateOffset.spec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/elements.spec.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/fixtures/aos-offset.fixture.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/fixtures/aos.fixture.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/test/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/webpack.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/aos/yarn.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/.travis.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/CHANGELOG.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/bower.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/script/test" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/src/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/tests/qunit.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/tests/remove.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/tests/runner.coffee" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/classlist-polyfill/tests/tests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.debounce/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.debounce/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.debounce/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.debounce/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.throttle/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.throttle/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.throttle/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/lodash.throttle/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

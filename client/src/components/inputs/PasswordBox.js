@@ -52,14 +52,13 @@ class PasswordBox extends Component {
             type="password"
             placeholder={this.props.placeholder}
             spellCheck="false"
-            
           />
           <span className="toggle-password-span">
             <i onClick={this.togglePasswordShowing} class="bi bi-eye"></i>
           </span>
         </div>
         <div id={this.props.errorId} className="password-box-error">
-          <i class="bi bi-x-circle"></i>
+          <i class="fa fa-exclamation-circle"></i>
           {this.props.error}
         </div>
       </div>

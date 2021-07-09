@@ -20,41 +20,42 @@ class CategoryCard extends Component {
     this.imageLoaded = this.imageLoaded.bind(this);
     this.viewProductsClicked = this.viewProductsClicked.bind(this);
   }
-  viewProductsClicked(e)
-  {
-    window.location.href = "/restaurants/name";
+  viewProductsClicked(e) {
+  if (this.props.restaurantName === undefined) return;
+  window.location.href = `/restaurants/${this.props.restaurantName.replace(" ", "-").toLowerCase()}?category=${this.props.category.toLowerCase().trim().replace(" ", "-")}`;
   }
   imageLoaded(e) {
     let parent = e.currentTarget.parentElement.children[1];
-    setTimeout(() => {      
+    setTimeout(() => {
       this.setState({ imageLoading: "false" });
       parent.style.opacity = "0";
       setTimeout(() => {
         parent.remove();
-      } ,100);      
+      }, 100);
     }, 1000);
   }
   componentDidMount() {
     AOS.init();
   }
-  componentDidUpdate() {    }
+  componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
   render() {
     return (
       <div
         className="category-card-container"
         id={this.props.id}
-        ref={this.rootRef}
+        ref={this.rootRef}        
         onClick={this.props.onClick}
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
-        onMouseOver={this.props.onMouseOver}
+        onMouseOver={this.props.onMouseOver}        
       >
         <div className="category-card-image">
           <img
             loading="lazy"
             onLoad={this.imageLoaded}
             src={this.props.photo}
+            onClick={this.viewProductsClicked}
           />
           <div className="category-card-image-loader">
             <CircleLoader isActive={this.state.imageLoading} />
@@ -62,7 +63,7 @@ class CategoryCard extends Component {
         </div>
         <div className="category-card-inner">
           <div>
-            <h1>{this.props.category}</h1>
+            <h1 onClick={this.viewProductsClicked}>{this.props.category}</h1>
             <p>{this.props.description}</p>
           </div>
           <DefaultButton

@@ -29,7 +29,7 @@ class RichTextBox extends Component {
           />
         </div>
         <div id={this.props.errorId} className="rich-text-box-error">
-          <i class="bi bi-x-circle"></i>
+          <i class="fa fa-exclamation-circle"></i>
           {this.props.error}
         </div>
       </div>

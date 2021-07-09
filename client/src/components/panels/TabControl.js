@@ -81,9 +81,9 @@ class TabControl extends Component {
             );
           })}
         </div>
-        <main className="tab-control-main">
+        <div className="tab-control-main">
           {this.props.tabs[this.state.activeIndex].content}
-        </main>
+        </div>
       </div>
     );
   }

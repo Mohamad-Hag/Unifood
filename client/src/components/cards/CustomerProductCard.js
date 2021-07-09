@@ -4,7 +4,7 @@ import IconButton from "../inputs/IconButton";
 import Badges from "../labels/Badges";
 import CircleLoader from "../loaders/CircleLoader";
 import "./styles/CustomerProductCard.css";
-import AOS from 'aos'
+import AOS from "aos";
 
 class CustomerProductCard extends Component {
   constructor(props) {
@@ -15,8 +15,8 @@ class CustomerProductCard extends Component {
 
     // State Object
     this.state = {
-      counter: 1,
-      isFavorite: false,
+      counter: props.counter ? props.counter : 1,
+      isFavorite: props.isFavorite,
       cartButton: {
         text: (
           <span style={{ color: "var(--secondry-text-color)" }}>
@@ -36,6 +36,7 @@ class CustomerProductCard extends Component {
     this.addToCartClicked = this.addToCartClicked.bind(this);
   }
   addToCartClicked(e) {
+    if (!this.props.isAvailable) return;
     let target = e.currentTarget;
     target.classList.toggle("remove-from-cart-btn");
     let oldIcon = this.state.cartButton.icon;
@@ -89,11 +90,15 @@ class CustomerProductCard extends Component {
     this.setState({ counter: newCounter });
   }
   componentDidMount() {
-    this.setState({ isFavorite: this.props.isFavorite });
     AOS.init();
   }
   componentDidUpdate() {}
-  UNSAFE_componentWillReceiveProps(newPro) {}
+  UNSAFE_componentWillReceiveProps(newPro) {
+    this.setState({
+      isFavorite: newPro.isFavorite,
+      counter: newPro.counter ? newPro.counter : this.state.counter,
+    });
+  }
   render() {
     return (
       <div
@@ -172,13 +177,11 @@ class CustomerProductCard extends Component {
               <IconButton iconClass="fa fa-minus" onClick={this.minusClicked} />
             </div>
             <IconButton
-              tooltip={
-                this.state.isFavorite === true ? "Unfavorite" : "Favorite"
-              }
+              tooltip={this.state.isFavorite ? "Unfavorite" : "Favorite"}
               id="customer-product-card-add-to-favorites"
               onClick={this.addToFavorites}
               iconClass={
-                this.state.isFavorite === true ? "fa fa-heart" : "fa fa-heart-o"
+                this.state.isFavorite ? "fa fa-heart" : "fa fa-heart-o"
               }
             />
           </div>

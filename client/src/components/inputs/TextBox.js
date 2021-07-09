@@ -39,7 +39,7 @@ class TextBox extends Component {
           />
         </div>
         <div id={this.props.errorId} className="text-box-error">
-          <i class="bi bi-x-circle"></i>
+          <i class="fa fa-exclamation-circle"></i>
           {this.props.error}
         </div>
       </div>

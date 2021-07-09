@@ -64,6 +64,24 @@
     width: 300px;
     margin-bottom: 30px;
 }
+#form-general-error
+{
+    color: var(--error-color);    
+    align-items: center;
+    justify-content: left;
+    display: none;    
+    padding: 20px 10px;    
+    margin-bottom: 10px;
+    font-size: smaller;
+    width: 300px;
+    background: hsl(4, 90%, 95%);
+    font-weight: bold;
+}
+#form-general-error i
+{
+    color: var(--error-color);
+    margin-right: 10px;
+}
 @media screen and (max-width: 800px)
 {
     #form-register-container

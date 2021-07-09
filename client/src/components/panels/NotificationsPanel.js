@@ -56,8 +56,9 @@ class NotificationsPanel extends Component {
               );
             }),
             document.querySelector("#notifications-panel-items")
-          );
-          $("#notifications-panel-footer").css("display", "block");
+          , () => {
+            $("#notifications-panel-footer").css("display", "block");
+          });          
         }
         this.setState({ isLoaderActive: "false" });
       });

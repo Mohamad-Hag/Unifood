@@ -33,9 +33,11 @@
     display: flex;
     align-items: center;
     justify-content: left;
-    padding: 10px;    
-    display: none;
-    font-size: 16px;
+    padding-bottom: 10px;
+    padding-top: 5px;
+    display: none; 
+    font-size: smaller;
+    font-weight: bold;
 }
 .rich-text-box-error i
 {

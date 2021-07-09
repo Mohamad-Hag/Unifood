@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./styles/SelectBox.css";
 import $ from "jquery";
+import getIndexOfElement from "../assitance-methods/getIndexOfElement";
 
 class SelectBox extends Component {
   constructor(props) {
@@ -18,11 +19,12 @@ class SelectBox extends Component {
     // Bindings Methods
     this.selectBoxToggleClicked = this.selectBoxToggleClicked.bind(this);
     this.itemClicked = this.itemClicked.bind(this);
-    this.selectBoxPlaceholderClicked = this.selectBoxPlaceholderClicked.bind(
-      this
-    );
+    this.itemSelected = this.itemSelected.bind(this);
+    this.toggleTo = this.toggleTo.bind(this);
+    this.selectBoxPlaceholderClicked =
+      this.selectBoxPlaceholderClicked.bind(this);
   }
-  componentDidMount() {
+  handleProps(prop) {
     $(document).mouseup((e) => {
       if (this.ref.current === null) return;
       let itemsContainers = $(".select-box-toggle");
@@ -49,21 +51,21 @@ class SelectBox extends Component {
       this.ref.current.style.position = "m";
     });
     if (
-      this.props.selectedIndex !== undefined &&
-      this.props.selectedIndex !== null &&
-      this.props.selectedIndex !== ""
+      prop.selectedIndex !== undefined &&
+      prop.selectedIndex !== null &&
+      prop.selectedIndex !== ""
     ) {
       let items = this.ref.current.childNodes[1].childNodes;
       let text = "";
       let e = null;
       for (let i = 0; i < items.length; i++) {
-        if (i === parseInt(this.props.selectedIndex)) {
+        if (i === parseInt(prop.selectedIndex)) {
           text = items[i].childNodes[0].innerText;
           e = items[i];
           break;
         }
       }
-      let itemIndex = this.props.selectedIndex;
+      let itemIndex = prop.selectedIndex;
       if (e === null) {
         text = items[0].childNodes[0].innerText;
         e = items[0];
@@ -82,12 +84,12 @@ class SelectBox extends Component {
       }
       let itemsBox = this.ref.current.childNodes[1];
 
-      itemsBox.parentElement.childNodes[0].childNodes[0].innerText = this.props.placeholder !== undefined
-      ? this.props.placeholder + ": " + text : text;
+      itemsBox.parentElement.childNodes[0].childNodes[0].innerText =
+        prop.placeholder !== undefined ? prop.placeholder + ": " + text : text;
 
       this.setState({ selectedValue: text });
       this.setState({ selectedIndex: itemIndex });
-      this.props.onValueSelected(text, itemIndex);
+      prop.onValueSelected(text, itemIndex);
 
       itemsBox.style.top = "30px";
       itemsBox.style.opacity = "0";
@@ -97,31 +99,26 @@ class SelectBox extends Component {
       this.setState({ isOpen: "false" });
     }
   }
+  componentDidMount() {
+    this.handleProps(this.props);
+  }
 
   itemClicked(e) {
-    let itemsBox = e.currentTarget.parentElement;
-    let itemText = e.currentTarget.childNodes[0].innerText;
-    let itemIndex = 0;
+    this.itemSelected(e.currentTarget);
+  }
+  itemSelected(item) {
+    let itemsBox = item.parentElement;
+    let itemText = item.childNodes[0].innerText;
+    let itemIndex = getIndexOfElement(item, "select-box-item", itemsBox);
     let index = 0;
 
-    e.currentTarget.childNodes[1].style.opacity = "1";
-    for (let el of e.currentTarget.parentElement.childNodes) {
-      if (el !== e.currentTarget) {
+    item.childNodes[1].style.opacity = "1";
+    for (let el of item.parentElement.childNodes) {
+      if (el !== item) {
         el.childNodes[1].style.opacity = "0";
       }
     }
-    for (let el of $(".select-box-toggle .bi")) {
-      el.style.transform = "rotate3d(1, 0, 0, 0)";
-      el.style.transform = "unset";
-    }
-
-    for (let el of itemsBox.childNodes) {
-      if (el.childNodes[1].style.opacity === "1") {
-        itemIndex = index;
-      }
-      index++;
-    }
-
+    
     itemsBox.parentElement.childNodes[0].childNodes[0].innerText =
       this.props.placeholder !== undefined
         ? this.props.placeholder + ": " + itemText
@@ -130,20 +127,21 @@ class SelectBox extends Component {
     this.setState({ selectedValue: itemText });
     this.setState({ selectedIndex: itemIndex });
     this.props.onValueSelected(itemText, itemIndex);
-
-    itemsBox.style.top = "30px";
-    itemsBox.style.opacity = "0";
-    setTimeout(() => {
-      itemsBox.style.display = "none";
-    }, 200);
-    this.setState({ isOpen: "false" });
   }
   selectBoxPlaceholderClicked() {}
   selectBoxToggleClicked(e) {
-    let itemsBox = e.currentTarget.parentElement.childNodes[1];
-    let arrow = e.currentTarget.childNodes[1];
-
+    let target = e.currentTarget;
+    let itemsBox = target.parentElement.childNodes[1];
     let isOpen = itemsBox.style.display;
+    if (isOpen !== "block") {
+      this.toggleTo(target, "none");
+    } else {
+      this.toggleTo(target, "block");
+    }
+  }
+  toggleTo(item, isOpen) {
+    let itemsBox = item.parentElement.childNodes[1];
+    let arrow = item.childNodes[1];
     if (isOpen !== "block") {
       this.ref.current.style.position = "relative";
       arrow.style.transform = "rotate3d(1, 0, 0, 180deg)";
@@ -169,8 +167,24 @@ class SelectBox extends Component {
       this.setState({ isOpen: "false" });
     }
   }
-  UNSAFE_componentWillReceiveProps(newPro) {}
-
+  UNSAFE_componentWillReceiveProps(newPro) {
+    if (this.props.notInitial === undefined) return;
+    let index = parseInt(this.props.selectedIndex);
+    let current = this.ref.current;
+    let checks = current.querySelectorAll(".bi-check");  
+    let togglePart = current.querySelector(".select-box-selected");
+    this.props.items.forEach((element, i) => {      
+      if (i === index)
+      {        
+        checks[i].style.opacity = "1";
+        togglePart.innerText = `${this.props.placeholder}: ${element}`;
+      }
+      else
+      {
+        checks[i].style.opacity = "0";
+      }
+    });
+  }
   render() {
     return (
       <div
@@ -203,7 +217,7 @@ class SelectBox extends Component {
                 tabIndex="0"
                 className="select-box-item"
               >
-                <span>{item}</span>
+                <span className="select-box-item-text">{item}</span>
                 <span className="bi bi-check"></span>
               </div>
             );

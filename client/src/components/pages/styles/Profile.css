@@ -59,7 +59,7 @@
     opacity: 1;
     top: 50%;
 }
-#profile-container .tab-control-header
+#profile-tabs .tab-control-header
 {
     position: sticky;
     top: 71px;

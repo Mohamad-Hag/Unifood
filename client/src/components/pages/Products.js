@@ -9,6 +9,11 @@ import Footer from "../fixtures/Footer";
 import SelectBox from "../inputs/SelectBox";
 import Axios from "axios";
 import CircleLoader from "../loaders/CircleLoader";
+import getHost from "../assitance-methods/getHost";
+import Cookies from "../assitance-methods/Cookies";
+import IconButton from "../inputs/IconButton";
+import StringProcessor from "../assitance-methods/StringProcessor";
+import NoProductsImg from "../../assets/vectors/Empty.svg";
 
 class Products extends Component {
   constructor(props) {
@@ -25,7 +30,24 @@ class Products extends Component {
       notificationsCount: null,
       cartCount: null,
       products: [],
+      isRestaurantClosed: 0,
       categories: ["All"],
+      fitlers: [
+        "None",
+        "Top Rated",
+        "Newest",
+        "Available Only",
+        "Offered Products",
+        "My Favorites",
+      ],
+      restaurantImage: null,
+      restaurantName: "",
+      restaurantID: null,
+      selectedCategoryIndex: "",
+      selectedFilterIndex: "0",
+      filterProducts: [],
+      selectedFilter: "None",
+      selectedCategory: "All",
     };
 
     // Binding Methods
@@ -38,33 +60,94 @@ class Products extends Component {
     this.categorySelected = this.categorySelected.bind(this);
     this.filterSelected = this.filterSelected.bind(this);
     this.productAdded = this.productAdded.bind(this);
+    this.getRestaurant = this.getRestaurant.bind(this);
+    this.setSelectedCategoryIndex = this.setSelectedCategoryIndex.bind(this);
+    this.setSelectedFilterIndex = this.setSelectedFilterIndex.bind(this);
+    this.triggerPopState = this.triggerPopState.bind(this);
+    this.checkParameter = this.checkParameter.bind(this);
+    this.getParameter = this.getParameter.bind(this);
+  }
+  checkParameter(name) {
+    let urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has(name)) return true;
+    return false;
+  }
+  getParameter(name) {
+    let urlParams = new URLSearchParams(window.location.search);
+    if (this.checkParameter(name)) return urlParams.get(name);
+    return "?";
+  }
+  getRestaurant() {
+    let params = this.props.match.params;
+    let name = params.name.replace("-", " ").trim();
+    let restaurantData = { name: name };
+    let api = `${getHost()}/customer/getrestaurantbyname`;
+    Axios.post(api, restaurantData).then((response) => {
+      let data = response.data;
+      let image = data.Image;
+      let isClosed = data.IsClosed;
+      let id = data.ID;
+      let restaurantName = data.Name;
+      this.setState(
+        {
+          restaurantName: restaurantName,
+          restaurantImage: image,
+          restaurantID: id,
+          isRestaurantClosed: isClosed,
+        },
+        () => {
+          let sp = StringProcessor;
+          let urlParams = new URLSearchParams(window.location.search);
+          let paramName1 = "category";
+          let paramName2 = "filter";
+          let filter = "None";
+          if (this.checkParameter(paramName2))
+            filter = sp.capitalizeEachWord(
+              sp.decodeURLWord(this.getParameter(paramName2))
+            );
+          let getAll = urlParams.has(paramName1) ? false : true;
+          if (getAll) this.setState({ selectedCategoryIndex: "0" });
+          this.getProducts(urlParams.get(paramName1), getAll, filter);
+          this.getCategories();
+          this.triggerPopState();
+        }
+      );
+    });
   }
   productAdded(id, added) {
     let count = this.state.cartCount;
-    count = added ? (count + 1) : (count - 1);
+    count = added ? count + 1 : count - 1;
     this.setState({ cartCount: count });
   }
-  categorySelected(value) {
-    let loader = document.querySelector("#products-loader");
-    loader.style.display = "flex";
-    Axios.get("https://www.themealdb.com/api/json/v1/1/search.php?s=i").then(
-      (response) => {
-        let data =
-          value === "All"
-            ? response.data.meals
-            : response.data.meals.filter((element) => element.strCategory === value);
-        this.setState(
-          {
-            products: data,
-          },
-          () => {
-            loader.style.display = "none";
-          }
+  triggerPopState() {
+    window.addEventListener("popstate", (e) => {
+      let sp = StringProcessor;
+      let urlParams = new URLSearchParams(window.location.search);
+      let paramName = "category";
+      let filter = "None";
+      if (urlParams.has("filter")) {
+        filter = sp.capitalizeEachWord(
+          sp.decodeURLWord(urlParams.get("filter"))
         );
       }
-    );
+      let getAll = urlParams.has(paramName) ? false : true;
+      if (getAll) this.setState({ selectedCategoryIndex: "0" });
+      this.getProducts(urlParams.get(paramName), getAll, filter);
+    });
   }
-  filterSelected(value) {}
+  categorySelected(value, i) {
+    let getAll = false;
+    if (value === "All") getAll = true;
+    this.getProducts(value, getAll, this.state.selectedFilter);
+    this.setState({ selectedCategoryIndex: i });
+  }
+  filterSelected(value, i) {
+    let category = this.state.selectedCategory;
+    let getAll = category === "All" ? true : false;
+    this.getProducts(category, getAll, value);
+    this.setState({ selectedFilter: value });
+    this.setState({ selectedFilterIndex: i });
+  }
   notificationsClosed() {
     if (this.state.isNotificationsOpen === "true") {
       this.setState({ isNotificationsOpen: "false" });
@@ -89,33 +172,120 @@ class Products extends Component {
     $("#customer-search-in").focus();
     $("body").css("overflow-y", "hidden");
   }
-  getProducts() {
-    Axios.get("https://www.themealdb.com/api/json/v1/1/search.php?s=i").then(
+  getProducts(category, getAll = false, filter = null) {
+    let formData = {
+      category: category,
+      id: Cookies.get("id"),
+      restId: this.state.restaurantID,
+      getAll: getAll,
+    };
+    let current = this.rootRef.current;
+    let loader = document.querySelector("#products-loader");
+    let main = document.querySelector("main");
+    let mainIll = document.querySelector("#no-products-ill");
+    main.setAttribute("id", "products-main");
+    mainIll.style.display = "none";
+
+    loader.style.display = "flex";
+    if (filter === null) filter = this.state.selectedFilter;
+    if (category === null) category = "All";
+    Axios.post(`${getHost()}/customer/getproducts`, formData).then(
       (response) => {
-        let data = response.data.meals;       
-        console.log(data); 
+        let data = response.data; // pizza's
+        this.setState({ selectedCategory: category });
+        if (filter === "Top Rated") {
+          data = data.filter((prod) => prod.Rate >= 3);
+        } else if (filter === "Newest") {
+          data = data.filter((prod) => prod.IsNew);
+        } else if (filter === "Available Only") {
+          data = data.filter((prod) => prod.IsAvailable === 1);
+        } else if (filter === "My Favorites") {
+          data = data.filter((prod) => prod.IsFavorite === true);
+        } else if (filter === "Offered Products") {
+          data = data.filter((prod) => prod.HasOffer === true);
+        }
+        this.setState({ selectedFilter: filter }, () => {
+          if (category === "All") {
+            window.history.replaceState(
+              { category: null, filter: this.state.selectedFilter },
+              document.title,
+              `?filter=${StringProcessor.encodeURLWord(
+                this.state.selectedFilter
+              )}`
+            );
+          } else {
+            window.history.replaceState(
+              { category: category, filter: filter },
+              document.title,
+              `?category=${category.toLowerCase()}&filter=${StringProcessor.encodeURLWord(
+                filter
+              )}`
+            );
+          }
+        });
         this.setState({ products: data }, () => {
-          let loader = document.querySelector("#products-loader");
-          if (loader) loader.style.display = "none";
+          if (data.length === 0) {
+            main.setAttribute("id", "no-products");
+            mainIll.style.display = "flex";
+          }
+          setTimeout(() => {
+            if (loader) loader.style.display = "none";
+          }, 200);
         });
       }
     );
   }
   getCategories() {
-    Axios.get("https://www.themealdb.com/api/json/v1/1/categories.php").then(
-      (response) => {
-        let data = response.data.categories.map((d) => {
-          return d.strCategory;
-        });        
-        this.setState({ categories: [this.state.categories, ...data] });
-      }
-    );
+    let api = `${getHost()}/customer/getcategories`;
+    Axios.post(api, { restId: this.state.restaurantID }).then((response) => {
+      let data = response.data.map((d) => {
+        return d.Name;
+      });
+      this.setState({ categories: this.state.categories.concat(data) }, () => {
+        this.setSelectedCategoryIndex();
+        this.setSelectedFilterIndex();
+      });
+    });
+  }
+  setSelectedFilterIndex() {
+    let sp = StringProcessor;
+    let urlParams = new URLSearchParams(window.location.search);
+    let paramName = "filter";
+    let has = urlParams.has(paramName) ? true : false;
+    if (has) {
+      let param = sp.capitalizeEachWord(
+        sp.decodeURLWord(urlParams.get(paramName))
+      );
+      this.state.fitlers.forEach((filt, i) => {
+        if (filt === param) {
+          this.setState({ selectedFilterIndex: i.toString() });
+          return;
+        }
+      });
+    }
+  }
+  setSelectedCategoryIndex() {
+    let sp = StringProcessor;
+    let urlParams = new URLSearchParams(window.location.search);
+    let paramName = "category";
+    let has = urlParams.has(paramName) ? true : false;
+    if (has) {
+      let param = sp.decodeURLWord(urlParams.get(paramName));
+      this.state.categories.forEach((cate, i) => {
+        if (cate.toLowerCase() === param) {
+          this.setState({ selectedCategoryIndex: i.toString() });
+          return;
+        }
+      });
+    }
   }
   componentDidMount() {
     this.setState({ cartCount: 1, notificationsCount: 2 });
-    this.getProducts();
-    this.getCategories();
+    this.getRestaurant();
     this.id = this.props.id;
+    setTimeout(() => {
+      this.setSelectedCategoryIndex();
+    }, 200);
   }
   componentDidUpdate() {}
 
@@ -142,41 +312,95 @@ class Products extends Component {
         />
         <div id="prodcuts-header">
           <div id="product-header-left">
-            <img id="restaurant-img" src={p2} />
-            Deep House
+            <IconButton
+              id="products-back-btn"
+              iconClass="fa fa-arrow-left"
+              tooltip="Back"
+              onClick={() => {
+                window.location.href = "/restaurants";
+              }}
+            />
+            <div id="restaurant-img-container">
+              <img
+                id="restaurant-img"
+                alt=""
+                src={this.state.restaurantImage}
+                onLoad={() => {
+                  let loader = document.querySelector("#restaurant-img-loader");
+                  setTimeout(() => {
+                    loader.style.display = "none";
+                  }, 500);
+                }}
+              />
+              <div id="restaurant-img-loader">
+                <CircleLoader isActive="true" size="small" />
+              </div>
+            </div>
+            <div id="restaurant-name">
+              {this.state.restaurantName}
+              <div>
+                {this.state.isRestaurantClosed === 0 ? "Open Now" : "Closed"}
+                <i
+                  style={{
+                    color:
+                      this.state.isRestaurantClosed === 0
+                        ? "var(--success-color)"
+                        : "var(--error-color)",
+                  }}
+                  className="bi bi-circle-fill"
+                ></i>
+              </div>
+            </div>
           </div>
           <div id="product-header-right">
             <SelectBox
               items={this.state.categories}
-              selectedIndex="0"
+              selectedIndex={this.state.selectedCategoryIndex}
+              notInitial
               placeholder="Category"
               onValueSelected={this.categorySelected}
             />
             <SelectBox
-              items={["None", "Top Rated", "Newest", "Available Only"]}
-              selectedIndex="0"
+              items={this.state.fitlers}
+              notInitial
+              selectedIndex={this.state.selectedFilterIndex}
               placeholder="Filter By"
               onValueSelected={this.filterSelected}
             />
           </div>
         </div>
         <main id="products-main">
+          <div id="no-products-ill">
+            <img alt="" src={NoProductsImg} />
+            <p>Category '{this.state.selectedCategory}' and filter '{this.state.selectedFilter}' not match...</p>
+          </div>
           {this.state.products.map((product, i) => {
+            let hasTags = false;
+            let isAvailable = Boolean(product.IsAvailable);
+            if (!isAvailable || product.IsNew) hasTags = true;
             return (
               <CustomerProductCard
-                id={product.idMeal}
-                isFavorite={false}
-                name={product.strMeal}
-                price="$40.3"
-                description={product.strInstructions.slice(0, 200)}
-                photo={product.strMealThumb}
+                id={product.ID}
+                isFavorite={product.IsFavorite}
+                name={product.Name}
+                price={
+                  "$" +
+                  (product.HasOffer
+                    ? product.Price * (product.OfferPercentage / 100)
+                    : product.Price)
+                }
+                description={product.Description}
+                photo={product.Image}
                 onProductAdd={this.productAdded}
-                hasTags={true}
-                isOffer={i % 2 === 0 ? true : false}
-                isNew={true}
-                isAvailable={i % 2 === 0 ? true : false}
-                rating={3}
-                offerTooltip="50% Off!"
+                hasTags={hasTags}
+                isOffer={product.HasOffer}
+                isNew={product.IsNew}
+                isAvailable={
+                  this.state.isRestaurantClosed === 0 ? isAvailable : false
+                }
+                rating={product.Rate}
+                offerTooltip={product.OfferDescription}
+                counter={1}
               />
             );
           })}

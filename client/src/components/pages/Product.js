@@ -27,15 +27,15 @@ class Product extends Component {
       notificationsCount: null,
       cartCount: null,
       from: "Deep House",
-      name: undefined,
-      price: undefined,
-      description: undefined,
+      name: <CircleLoader isActive="true" size="small" />,
+      price: "0.00",
+      description: <CircleLoader isActive="true" />,
       isAddedToCart: false,
       isFavorite: false,
       isRated: false,
       rating: 1,
       counter: 1,
-      hasTags: false,
+      hasTags: true,
       isNew: false,
       isOffer: false,
       offerTooltip: undefined,
@@ -70,13 +70,12 @@ class Product extends Component {
     this.insertClicked = this.insertClicked.bind(this);
     this.addReviewKeyUpped = this.addReviewKeyUpped.bind(this);
   }
-  addReviewKeyUpped(e)
-  {
+  addReviewKeyUpped(e) {
     if (e.keyCode === 13) this.insertClicked();
   }
   insertClicked() {
     let textbox = document.querySelector("#add-review-tbx");
-    let text = textbox.value;    
+    let text = textbox.value;
     if (text === "") return;
     textbox.value = "";
     this.setState({
@@ -222,7 +221,7 @@ class Product extends Component {
       this.setState({
         from: "Deep House",
         name: data.strMeal,
-        price: "$40.5",
+        price: "40.5",
         description: data.strInstructions,
         isAddedToCart: false,
         isFavorite: false,

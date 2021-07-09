@@ -11,8 +11,7 @@ class IconButton extends Component {
     this.ref = React.createRef();
 
     // State Object
-    this.state = {
-      label: null,
+    this.state = {      
       tooltip: null,
     };
 
@@ -20,27 +19,10 @@ class IconButton extends Component {
   }
 
   componentWillMount() {
-    if (this.props.count !== undefined) {
-      this.setState({
-        label: <p className="icon-btn-label">{this.props.count}</p>,
-      });
-    } else {
-      this.setState({ label: null });
-    }
 
-    if (this.props.tooltip !== undefined && this.props.tooltip !== "") {
-      this.setState({ tooltip: <Tooltip text={this.props.tooltip} /> });
-    }
   }
 
-  UNSAFE_componentWillReceiveProps(newPro) {
-    if (newPro.count !== undefined) {
-      this.setState({
-        label: <p className="icon-btn-label">{newPro.count}</p>,
-      });
-    } else {
-      this.setState({ label: null });
-    }
+  UNSAFE_componentWillReceiveProps(newPro) {    
     if (newPro.tooltip !== undefined && newPro.tooltip !== "") {
       this.setState({ tooltip: <Tooltip text={newPro.tooltip} /> });
     } else {
@@ -57,7 +39,11 @@ class IconButton extends Component {
         onClick={this.props.onClick}
         disabled={this.props.disabled}
       >
-        {this.state.label}
+        {this.props.count === undefined ? null        
+        : this.props.count === null ? null
+        : (
+          <p className="icon-btn-label">{this.props.count}</p>
+        )}
         <i className={this.props.iconClass} style={this.props.iconStyle}></i>
         {this.state.tooltip}
       </button>

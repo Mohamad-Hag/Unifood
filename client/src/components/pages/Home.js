@@ -12,6 +12,7 @@ import IconButton from "../inputs/IconButton";
 import $ from "jquery";
 import AOS from "aos";
 import HomeCard from "../cards/HomeCard";
+import Axios from "axios";
 
 class Home extends Component {
   constructor(props) {

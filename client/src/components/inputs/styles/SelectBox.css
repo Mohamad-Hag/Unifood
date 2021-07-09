@@ -64,6 +64,14 @@
     padding: 5px 10px;   
     transition: 0 !important; 
 }
+.select-box-item-selected
+{
+
+}
+.select-box-item-selected .bi
+{    
+    opacity: 1 !important;
+}
 .select-box-item:focus
 {
     box-shadow: 0 0 0 3px #FF634840;

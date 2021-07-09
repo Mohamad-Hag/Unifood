@@ -56,9 +56,8 @@ class Header extends Component {
       isMenuOpen: "false",
     };
   }
-  cartClicked()
-  {
-    window.location.href = "/cart"; 
+  cartClicked() {
+    window.location.href = "/cart";
   }
   entryClicked() {
     window.location.href = "/entry";
@@ -136,7 +135,7 @@ class Header extends Component {
           <div id="header-left">
             <IconButton
               tooltip="Menu"
-              iconClass="fa fa-bars"
+              iconClass="fa fa-bars"              
               onClick={this.openHeaderMenuClicked}
             />
             <a href="/">

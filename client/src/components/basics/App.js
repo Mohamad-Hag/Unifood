@@ -38,9 +38,10 @@ class App extends Component {
             <Route exact component path="/restaurants">
               <Restaurants />
             </Route>
-            <Route exact component path="/restaurants/name">
-              <Products />
-            </Route>
+            <Route
+              path="/restaurants/:name"
+              render={(props) => <Products {...props} />}
+            />
             <Route
               path="/restaurants/name/:id"
               render={(props) => <Product {...props} />}
