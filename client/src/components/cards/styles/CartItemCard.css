@@ -8,6 +8,11 @@
     transition-duration: .3s;
     transition-property: transform, opacity;
 }
+.cart-item-card-removed-state
+{
+    transform: translate(-100%);
+    opacity: 0;
+}
 .cart-item-card-container-disappear
 {
     transform: translateX(-100%);

@@ -28,8 +28,26 @@ class RecentOrderCard extends Component {
         onMouseOver={this.props.onMouseOver}
         style={this.props.style}
       >
-          <time><i className="bi bi-clock"></i>{this.props.date}</time>
-          <span><i className="bi bi-currency "></i>${this.props.total}</span>
+        <time>
+          <div className="recent-order-card-number">{this.props.orderId}</div>
+          <i className="bi bi-clock"></i>
+          {this.props.date}
+          <div className="recent-order-card-status">
+            <i
+              className="bi bi-circle-fill"
+              style={{
+                color:
+                  this.props.status !== "pending"
+                    ? "var(--success-color)"
+                    : "var(--error-color)",
+              }}
+            ></i>
+            {this.props.status}
+          </div>
+        </time>
+        <span>
+          <i className="bi bi-currency "></i>${this.props.total}
+        </span>
       </div>
     );
   }

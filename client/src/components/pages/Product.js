@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import "./styles/Product.css";
-import $ from "jquery";
+import $, { contains } from "jquery";
 import Header from "../fixtures/Header";
 import Axios from "axios";
 import p2 from "../../assets/images/deephouse.jpg";
 import p1 from "../../assets/images/Myphoto.jpg";
+import NoCommentsImg from "../../assets/vectors/NoComments.svg";
 import Footer from "../fixtures/Footer";
 import Badges from "../labels/Badges";
 import IconButton from "../inputs/IconButton";
@@ -13,6 +15,9 @@ import TextBox from "../inputs/TextBox";
 import CustomerReviewCard from "../cards/CustomerReviewCard";
 import getIndexOfElement from "../assitance-methods/getIndexOfElement";
 import CircleLoader from "../loaders/CircleLoader";
+import getHost from "../assitance-methods/getHost";
+import Cookies from "../assitance-methods/Cookies";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class Product extends Component {
   constructor(props) {
@@ -34,7 +39,7 @@ class Product extends Component {
       isFavorite: false,
       isRated: false,
       rating: 1,
-      counter: 1,
+      counter: props.counter ? props.counter : 1,
       hasTags: true,
       isNew: false,
       isOffer: false,
@@ -48,10 +53,18 @@ class Product extends Component {
           </span>
         ),
         icon: "bi bi-cart-plus",
+        customerRating: 1,
       },
       reviews: [],
       reviewsLoading: "true",
+      user: {},
+      restaurantName: "-------",
+      restaurantImage: null,
+      restaurantID: 0,
+      isRestaurantClosed: false,
+      firstTimeRating: true,
     };
+    this.isBusy = false;
 
     // Binding Methods
     this.notificationsClosed = this.notificationsClosed.bind(this);
@@ -69,6 +82,124 @@ class Product extends Component {
     this.getReviews = this.getReviews.bind(this);
     this.insertClicked = this.insertClicked.bind(this);
     this.addReviewKeyUpped = this.addReviewKeyUpped.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.getCartCount = this.getCartCount.bind(this);
+    this.getProduct = this.getProduct.bind(this);
+    this.getRestaurant = this.getRestaurant.bind(this);
+    this.checkParameter = this.checkParameter.bind(this);
+    this.getParameter = this.getParameter.bind(this);
+    this.checkAddToCart = this.checkAddToCart.bind(this);
+    this.getCustomerRate = this.getCustomerRate.bind(this);
+    this.starSelected = this.starSelected.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
+  }
+  async setNotificationsCount() {
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    await Axios.post(getNotificationsAPI, postData).then((response) => {
+      let data = response.data;
+      this.setState({
+        notificationsCount: data.filter((x) => !x.isRead).length,
+      });
+    });
+  }
+  getCustomerRate() {
+    let formData = {
+      id: Cookies.get("id"),
+      pid: parseInt(this.props.match.params.id),
+    };
+    let api = `${getHost()}/customer/getrating`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      let value = data.data.value;
+      this.setState({ customerRating: value });
+      this.starSelected(
+        document.querySelectorAll("#rating-dial-stars i")[value - 1]
+      );
+      if (data.message === "first") this.setState({ firstTimeRating: true });
+      else this.setState({ firstTimeRating: false });
+    });
+  }
+  checkAddToCart() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items) return;
+    let index = items.findIndex(
+      (x) => x.id === parseInt(this.props.match.params.id)
+    );
+    let text, icon;
+    if (index > -1) {
+      setTimeout(() => {
+        let current = this.rootRef.current;
+        if (!current) return;
+        let target = current.querySelector("#product-add");
+        target.classList.add("remove-from-cart-btn");
+      }, 100);
+      this.setState({ counter: items[index].count });
+      text = (
+        <span style={{ color: "var(--secondry-text-color)" }}>
+          Remove From Cart&nbsp;&nbsp;&nbsp;
+        </span>
+      );
+      icon = "bi bi-cart-dash";
+    } else {
+      setTimeout(() => {
+        let current = this.rootRef.current;
+        if (!current) return;
+        let target = current.querySelector("#product-add");
+        target.classList.remove("remove-from-cart-btn");
+        this.setState({ counter: 1 });
+      }, 100);
+      text = (
+        <span style={{ color: "var(--secondry-text-color)" }}>
+          Add To Cart&nbsp;&nbsp;&nbsp;
+        </span>
+      );
+      icon = "bi bi-cart-plus";
+    }
+    this.setState({
+      cartButton: {
+        text: text,
+        icon: icon,
+      },
+    });
+  }
+  checkParameter(name) {
+    let urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has(name)) return true;
+    return false;
+  }
+  getParameter(name) {
+    let urlParams = new URLSearchParams(window.location.search);
+    if (this.checkParameter(name)) return urlParams.get(name);
+    return "?";
+  }
+  getRestaurant() {
+    let params = this.props.match.params;
+    let name = params.restaurant.replace("-", " ").trim();
+    let restaurantData = { name: name };
+    let api = `${getHost()}/customer/getrestaurantbyname`;
+    Axios.post(api, restaurantData).then((response) => {
+      let data = response.data;
+      let image = data.Image;
+      let isClosed = data.IsClosed;
+      let id = data.ID;
+      let restaurantName = data.Name;
+      this.setState({
+        restaurantName: restaurantName,
+        restaurantImage: image,
+        restaurantID: id,
+        isRestaurantClosed: isClosed,
+      });
+    });
+  }
+  getCartCount() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items || items.length === 0) return null;
+    return items.length.toString();
   }
   addReviewKeyUpped(e) {
     if (e.keyCode === 13) this.insertClicked();
@@ -76,42 +207,69 @@ class Product extends Component {
   insertClicked() {
     let textbox = document.querySelector("#add-review-tbx");
     let text = textbox.value;
+    let formDate = {
+      pid: this.props.match.params.id,
+      id: Cookies.get("id"),
+      text: text,
+    };
+    let api = `${getHost()}/customer/addreview`;
     if (text === "") return;
     textbox.value = "";
-    this.setState({
-      reviews: [
-        {
-          postId: 1,
-          id: 2,
-          name: "Mohamad Hag",
-          email: "Jayne_Kuhic@sydney.com",
-          body: text,
-        },
-        ...this.state.reviews,
-      ],
+    Axios.post(api, formDate).then((response) => {
+      let data = response.data;
+      console.log(data);
+      this.setState({
+        reviews: [
+          {
+            ID: data.ID,
+            Name: this.state.user.Name,
+            Image: this.state.user.Image,
+            Text: text,
+            Date: "Just Now",
+            Like: 0,
+            Dislike: 0,
+            UserID: 0,
+            canReact: false,
+          },
+          ...this.state.reviews,
+        ],
+      });
     });
   }
   getReviews() {
-    Axios.get("https://jsonplaceholder.typicode.com/comments").then(
-      (response) => {
-        let data = response.data.slice(0, 10);
-        console.log(data);
-        this.setState({ reviews: data }, () => {
-          this.setState({ reviewsLoading: "false" });
-        });
-      }
-    );
+    let formData = {
+      pid: this.props.match.params.id,
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getreviews`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      console.log(data);
+      this.setState({ reviews: data }, () => {
+        this.setState({ reviewsLoading: "false" });
+      });
+    });
   }
   submitRatingClicked() {
     let dial = document.querySelector("#rating-dial");
     dial.innerHTML =
       "<div class='thanks-rating'>Thanks for rating! <i class='fa fa-check'></i><div>";
-    setTimeout(() => {
-      this.closeRating();
-    }, 1500);
+    let api = `${getHost()}/customer/addrating`;
+    let formData = {
+      id: parseInt(Cookies.get("id")),
+      pid: parseInt(this.props.match.params.id),
+      value: this.state.customerRating,
+    };
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      this.setState({ firstTimeRating: false });
+      setTimeout(() => {
+        this.closeRating();
+      }, 1500);
+    });
   }
-  starClicked(e) {
-    let target = e.currentTarget;
+  starSelected(s) {
+    let target = s;
     let stars = document.querySelector("#rating-dial-stars");
     let star = document.querySelectorAll("#rating-dial-stars i");
     let index = getIndexOfElement(target, "bi", stars);
@@ -128,12 +286,17 @@ class Product extends Component {
       if (i <= index) star[i].setAttribute("class", "bi bi-star-fill");
       else star[i].setAttribute("class", "bi bi-star");
     }
+    this.setState({ customerRating: index + 1 });
+  }
+  starClicked(e) {
+    this.starSelected(e.currentTarget);
   }
   closeRating() {
     let box = document.querySelector("#rating-dial-container");
     box.style.display = "none";
   }
   addToCartClicked(e) {
+    if (!this.state.isAvailable) return;
     let target = e.currentTarget;
     target.classList.toggle("remove-from-cart-btn");
     let oldIcon = this.state.cartButton.icon;
@@ -155,17 +318,57 @@ class Product extends Component {
         icon: icon,
       },
     });
-
-    let added = oldIcon === iconClass ? true : false;
-    let count = this.state.cartCount;
-    count = added ? count + 1 : count - 1;
-    this.setState({ cartCount: count });
+    let productAdded = oldIcon === iconClass ? true : false;
+    let storage = localStorage;
+    if (!storage.getItem("items")) storage.setItem("items", JSON.stringify([]));
+    let items = JSON.parse(storage.getItem("items"));
+    let cartCounter =
+      this.state.cartCount !== null ? parseInt(this.state.cartCount) : 0;
+    if (productAdded) {
+      items.push({
+        id: parseInt(this.props.match.params.id),
+        photo: this.state.image,
+        name: this.state.name,
+        price: parseInt(this.state.price) * this.state.counter,
+        count: this.state.counter,
+      });
+      this.setState({ cartCount: cartCounter + 1 });
+    } else {
+      items = items.filter(
+        (x) => x.id !== parseInt(this.props.match.params.id)
+      );
+      this.setState({
+        cartCount: cartCounter === 1 ? null : cartCounter - 1,
+        counter: 1,
+      });
+    }
+    let cartTotal = 0;
+    items.forEach((item) => {
+      cartTotal = cartTotal + item.price;
+    });
+    storage.setItem("cartTotal", cartTotal);
+    storage.setItem("items", JSON.stringify(items));
   }
   rateThisClicked() {
     let box = document.querySelector("#rating-dial-container");
     box.style.display = "block";
   }
   addToFavorites() {
+    if (this.isBusy) return;
+    this.isBusy = true;
+    let process = this.state.isFavorite ? "remove" : "add";
+
+    let formData = {
+      id: Cookies.get("id"),
+      productId: parseInt(this.props.match.params.id),
+      process: process,
+    };
+    let api = `${getHost()}/customer/addremovefavorite`;
+
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      this.isBusy = true;
+    });
     this.setState({ isFavorite: !this.state.isFavorite });
   }
   minusClicked(e) {
@@ -190,8 +393,15 @@ class Product extends Component {
     }
   }
   getNotifications() {
-    let notifications = [];
-    let pro = new Promise((resolve) => {
+    const api = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    let pro = new Promise(async (resolve) => {
+      let notifications = [];
+      await Axios.post(api, postData).then((response) => {
+        let data = response.data;
+        notifications = data;
+      });
       resolve(notifications);
     });
     return pro;
@@ -208,34 +418,67 @@ class Product extends Component {
     $("#customer-search-in").focus();
     $("body").css("overflow-y", "hidden");
   }
-  componentDidMount() {
-    this.setState({ cartCount: 1, notificationsCount: 2 });
-    this.getReviews();
-
-    let params = this.props.match.params;
-    let id = params.id;
-    Axios.get(
-      `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
-    ).then((response) => {
-      let data = response.data.meals[0];
-      this.setState({
-        from: "Deep House",
-        name: data.strMeal,
-        price: "40.5",
-        description: data.strInstructions,
-        isAddedToCart: false,
-        isFavorite: false,
-        isRated: false,
-        rating: 3,
-        counter: 1,
-        hasTags: true,
-        isNew: true,
-        isOffer: true,
-        offerTooltip: "50% Off!",
-        isAvailable: true,
-        image: data.strMealThumb,
-      });
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data });
     });
+  }
+  getProduct() {
+    let formData = {
+      id: Cookies.get("id"),
+      pid: this.props.match.params.id,
+    };
+    const api = `${getHost()}/customer/getproductbyid`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      let hasTags = false;
+      if (data.HasOffer || !Boolean(data.IsAvailable) || data.IsNew)
+        hasTags = true;
+      this.setState(
+        {
+          from: "Deep House",
+          name: data.Name,
+          price: `${data.Price}`,
+          description: data.Description,
+          isAddedToCart: false,
+          isFavorite: data.IsFavorite,
+          isRated: false,
+          rating: data.Rate,
+          counter: 1,
+          hasTags: true,
+          isNew: data.IsNew,
+          isOffer: data.HasOffer,
+          offerTooltip: data.HasOffer ? data.OfferDescription : null,
+          isAvailable: Boolean(data.IsAvailable),
+          image: data.Image,
+        },
+        () => {
+          this.checkAddToCart();
+          this.getCustomerRate();
+        }
+      );
+    });
+  }
+  componentDidMount() {
+    if (!this.checkSignIn()) {
+      window.location.replace("/");
+      return;
+    }
+    this.setState({ cartCount: this.getCartCount() });
+    this.setNotificationsCount();
+    this.getRestaurant();
+    this.getUser();
+    this.getReviews();
+    this.getProduct();
   }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
@@ -258,13 +501,44 @@ class Product extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
-          profilePhoto={p1}
+          profilePhoto={this.state.user.Image}
           profileLink="/profile"
         />
 
         <div id="product-header">
-          <img id="restaurant-img" src={p2} />
-          {this.state.from}
+          <div id="restaurant-img-container">
+            <a href={`/restaurants/${this.props.match.params.restaurant}`}>
+              <img
+                id="restaurant-img"
+                alt=""
+                src={this.state.restaurantImage}
+                onLoad={() => {
+                  let loader = document.querySelector("#restaurant-img-loader");
+                  setTimeout(() => {
+                    loader.style.display = "none";
+                  }, 500);
+                }}
+              />
+            </a>
+            <div id="restaurant-img-loader">
+              <CircleLoader isActive="true" size="small" />
+            </div>
+          </div>
+          <div id="restaurant-name">
+            {this.state.restaurantName}
+            <div>
+              {this.state.isRestaurantClosed === 0 ? "Open Now" : "Closed"}
+              <i
+                style={{
+                  color:
+                    this.state.isRestaurantClosed === 0
+                      ? "var(--success-color)"
+                      : "var(--error-color)",
+                }}
+                className="bi bi-circle-fill"
+              ></i>
+            </div>
+          </div>
         </div>
         <div
           style={{ backgroundImage: `url(${this.state.image})` }}
@@ -322,17 +596,16 @@ class Product extends Component {
                 />
               </div>
               <div id="product-controls">
-                {!this.state.isAvailable ? null : (
-                  <IconButton
-                    tooltip={this.state.isFavorite ? "Unfavorite" : "Favorite"}
-                    id="customer-product-card-add-to-favorites"
-                    onClick={this.addToFavorites}
-                    iconClass={
-                      this.state.isFavorite ? "fa fa-heart" : "fa fa-heart-o"
-                    }
-                  />
-                )}
+                <IconButton
+                  tooltip={this.state.isFavorite ? "Unfavorite" : "Favorite"}
+                  id="customer-product-card-add-to-favorites"
+                  onClick={this.addToFavorites}
+                  iconClass={
+                    this.state.isFavorite ? "fa fa-heart" : "fa fa-heart-o"
+                  }
+                />
                 <DefaultButton
+                  id="product-add"
                   onClick={this.addToCartClicked}
                   text={this.state.cartButton.text}
                   iconClass={this.state.cartButton.icon}
@@ -341,7 +614,13 @@ class Product extends Component {
                 <DefaultButton
                   id="product-rate-btn"
                   onClick={this.rateThisClicked}
-                  text="Rate This&nbsp;&nbsp;&nbsp;"
+                  text={
+                    this.state.firstTimeRating ? (
+                      <span>Rate This&nbsp;&nbsp;&nbsp;</span>
+                    ) : (
+                      <span>Change My Rating&nbsp;&nbsp;&nbsp;</span>
+                    )
+                  }
                   iconClass="bi bi-hand-thumbs-up"
                   type="outline"
                 />
@@ -355,32 +634,48 @@ class Product extends Component {
               Reviews ({this.state.reviews.length}){" "}
               <CircleLoader isActive={this.state.reviewsLoading} size="small" />
             </p>
-            <div id="add-comment-section">
-              <TextBox
-                onKeyUp={this.addReviewKeyUpped}
-                inputId="add-review-tbx"
-                placeholder="Add a review..."
-                autoComplete="off"
-              />
-              <DefaultButton text="Insert" onClick={this.insertClicked} />
-            </div>
+            {Boolean(this.state.user.IsBanned) ? (
+              <div id="add-comment-banned">
+                <i class="bi bi-exclamation-octagon-fill"></i>Sorry, but you're
+                banned due to some unwanted behavior, review the restaurant for
+                more info..
+              </div>
+            ) : (
+              <div id="add-comment-section">
+                <TextBox
+                  onKeyUp={this.addReviewKeyUpped}
+                  inputId="add-review-tbx"
+                  placeholder="Add a review..."
+                  autoComplete="off"
+                />
+                <DefaultButton text="Insert" onClick={this.insertClicked} />
+              </div>
+            )}
           </div>
           <div id="reviews-container">
-            {this.state.reviews.map((review) => {
-              return (
-                <CustomerReviewCard
-                  name={review.name}
-                  review={review.body}
-                  time="5 hours ago."
-                  profileLink="#"
-                  likes="50"
-                  dislikes="70"
-                  userId={review.postId}
-                  reviewId={review.id}
-                  photo={p1}
-                />
-              );
-            })}
+            {this.state.reviews.length === 0 ? (
+              <div id="no-reviews-container">
+                <img alt="" src={NoCommentsImg} />
+                <p>There is no reviews here, try to add your own :)</p>
+              </div>
+            ) : (
+              this.state.reviews.map((review) => {
+                return (
+                  <CustomerReviewCard
+                    name={review.Name}
+                    review={review.Text}
+                    time={review.Date}
+                    profileLink="#"
+                    likes={review.Like}
+                    dislikes={review.Dislike}
+                    userId={review.UserID}
+                    reviewId={review.ID}
+                    photo={review.Image}
+                    canReact={review.CanReact}
+                  />
+                );
+              })
+            )}
           </div>
         </section>
         <div id="rating-dial-container">

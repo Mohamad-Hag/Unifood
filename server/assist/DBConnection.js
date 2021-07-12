@@ -7,6 +7,7 @@ class DBConnection {
       user: "root",
       password: "",
       database: "unifood",
+      charset: "utf8mb4",
     });
     return db;
   }

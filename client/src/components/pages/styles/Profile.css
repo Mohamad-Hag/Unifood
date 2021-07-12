@@ -21,6 +21,7 @@
     left: 50%;
     transform: translateX(-50%);
     top: calc(var(--profile-cover-height) + calc(var(--profile-img-dimentions) / 2));
+    text-align: center;
 }
 #profile-basic-info p
 {
@@ -30,7 +31,7 @@
 }
 #profile-basic-info span
 {
-    color: var(--highlighted-text-color);
+    color: var(--success-color);
 }
 #profile-img-container
 {
@@ -45,6 +46,7 @@
     transform: translateX(-50%);
     box-sizing: border-box;
     cursor: pointer;
+    background: linear-gradient(135deg, #eee, gray);
 }
 #profile-img
 {
@@ -53,6 +55,10 @@
     object-position: center;
     border-radius: 50%;
     object-fit: cover;
+}
+#profile-img-fin
+{
+    display: none;
 }
 #profile-img-container:hover #profile-img-mask
 {    
@@ -88,7 +94,12 @@
 }
 #profile-tabs
 {
-    margin: calc(calc(var(--profile-img-dimentions) / 2) + 80px) auto;    
+    margin: calc(calc(var(--profile-img-dimentions) / 2) + 150px) auto;    
+}
+#browse-restaurants-btn
+{
+    margin-top: 20px;
+    width: 100%;
 }
 #favorites-loading
 {

@@ -11,6 +11,9 @@ import Axios from "axios";
 import NoItemsImg from "../../assets/vectors/NoResults.svg";
 import CircleLoader from "../loaders/CircleLoader";
 import ReactDOM from "react-dom";
+import RichTextBox from "../inputs/RichTextBox";
+import getHost from "../assitance-methods/getHost";
+import Cookies from "../assitance-methods/Cookies";
 
 class Cart extends Component {
   constructor(props) {
@@ -32,7 +35,9 @@ class Cart extends Component {
       messageBoxOnValueSelected: (value) => {
         this.valueSelected(value);
       },
+      cartTotal: localStorage.getItem("cartTotal"),
       items: [],
+      user: [],
     };
 
     // Binding Methods
@@ -45,44 +50,61 @@ class Cart extends Component {
     this.valueSelected = this.valueSelected.bind(this);
     this.getCartItems = this.getCartItems.bind(this);
     this.itemRemoved = this.itemRemoved.bind(this);
+    this.itemChanged = this.itemChanged.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
   }
   itemRemoved(id) {
     let newItems = this.state.items.filter((item) => item.id !== id);
-    this.setState({ items: newItems, isCartMessageBoxOpen: "false" });
+    this.setState({ items: newItems });
+    this.setState({ cartTotal: localStorage.getItem("cartTotal") });
+  }
+  itemChanged(process) {
+    let total = localStorage.getItem("cartTotal");
+    this.setState({ cartTotal: total });
   }
   getCartItems() {
-    Axios.get("https://api.jsonbin.io/v3/b/60b9f2e292164b68bebfbb57/2", {
-      headers: {
-        "Content-Type": "application/json",
-        "X-Master-Key":
-          "$2b$10$Njyi7uTHU4UxNDG.9P0KHOw9ejrVPQXSM0ffpgcftLACCV5HYdKs2",
-      },
-    }).then((response) => {
-      let data = response.data.record;
-      this.setState({ items: data }, () => {
-        let loading = document.querySelector("#cart-table-body-loading");
-        if (loading) loading.remove();
-      });
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    let data = items ? items : [];
+    this.setState({ items: data }, () => {
+      let loading = document.querySelector("#cart-table-body-loading");
+      if (loading) loading.style.display = "none";
     });
   }
   valueSelected(value) {
     if (value === "Yes") {
       this.setState({ isCartMessageBoxOpen: "false" });
-      setTimeout(() => {
-        this.setState({
-          messageBoxTitle: "Success",
-          messageBoxType: "success",
-          messageBoxDescription: "Your cart is successfully checked out.",
-          messageBoxControls: "none",
-          messageBoxOnValueSelected: undefined,
-          isCartMessageBoxOpen: "true",
+      let formData = {
+        id: Cookies.get("id"),
+        total: this.state.cartTotal,
+        note: this.rootRef.current.querySelector("#cart-notes").value,
+        ids: JSON.parse(localStorage.getItem("items")),
+      };
+      let api = `${getHost()}/customer/cartcheckout`;
+      Axios.post(api, formData).then((response) => {
+        localStorage.setItem("items", JSON.stringify([]));
+        this.setState({ items: [] }, () => {
+          setTimeout(() => {
+            this.setState({
+              messageBoxTitle: "Success",
+              messageBoxType: "success",
+              messageBoxDescription: "Your cart is successfully checked out.",
+              messageBoxControls: "none",
+              messageBoxOnValueSelected: undefined,
+              isCartMessageBoxOpen: "true",
+            });
+          }, 1000);
         });
-      }, 1000);
+      });
     } else {
       this.setState({ isCartMessageBoxOpen: "false" });
     }
   }
-  continueClicked() {}
+  continueClicked() {
+    window.location.href = "/restaurants";
+  }
   checkoutClicked() {
     this.setState({ isCartMessageBoxOpen: "true" });
   }
@@ -91,9 +113,27 @@ class Cart extends Component {
       this.setState({ isNotificationsOpen: "false" });
     }
   }
+  async setNotificationsCount() {
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    await Axios.post(getNotificationsAPI, postData).then((response) => {
+      let data = response.data;
+      this.setState({
+        notificationsCount: data.filter((x) => !x.isRead).length,
+      });
+    });
+  }
   getNotifications() {
-    let notifications = [];
-    let pro = new Promise((resolve) => {
+    const api = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    let pro = new Promise(async (resolve) => {
+      let notifications = [];
+      await Axios.post(api, postData).then((response) => {
+        let data = response.data;
+        notifications = data;
+      });
       resolve(notifications);
     });
     return pro;
@@ -110,8 +150,28 @@ class Cart extends Component {
     $("#customer-search-in").focus();
     $("body").css("overflow-y", "hidden");
   }
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data });
+    });
+  }
   componentDidMount() {
+    if (!this.checkSignIn()) {
+      window.location.replace("/");
+      return;
+    }
+    this.getUser();
     this.getCartItems();
+    this.setNotificationsCount();
   }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
@@ -136,6 +196,8 @@ class Cart extends Component {
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
           profileLink="/profile"
+          profilePhoto={this.state.user.Image}
+          isCartVisible="false"
         />
         <p id="cart-title">
           <div>
@@ -159,7 +221,8 @@ class Cart extends Component {
                     price={item.price}
                     count={item.count}
                     onRemove={this.itemRemoved}
-                    isAvailable={item.isAvailable}
+                    isAvailable={true}
+                    onItemChange={this.itemChanged}
                   />
                 );
               })
@@ -173,10 +236,18 @@ class Cart extends Component {
               <CircleLoader isActive="true" />
             </div>
           </div>
+          {this.state.items.length !== 0 ? (
+            <RichTextBox
+              inputId="cart-notes"
+              style={{ minWidth: "100%" }}
+              inputStyle={{ minHeight: "150px" }}
+              placeholder="Notes..."
+            />
+          ) : null}
           <div id="cart-summary">
             {this.state.items.length !== 0 ? (
               <p>
-                Total Price: <span>$1883.82</span>
+                Total Price: <span>${this.state.cartTotal}</span>
               </p>
             ) : null}
             <div id="cart-controls">

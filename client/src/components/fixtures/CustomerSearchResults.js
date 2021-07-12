@@ -44,6 +44,7 @@ class CustomerSearchResults extends Component {
                   rating={result.rating}
                   price={result.price}
                   resultId={result.resultId}
+                  to={result.to}
                 />
               );
             })}

@@ -1,4 +1,7 @@
+import Axios from "axios";
 import React, { Component } from "react";
+import Cookies from "../assitance-methods/Cookies";
+import getHost from "../assitance-methods/getHost";
 import IconButton from "../inputs/IconButton";
 import "./styles/CustomerReviewCard.css";
 
@@ -15,43 +18,105 @@ class CustomerReviewCard extends Component {
     this.state = {
       likes: parseInt(this.props.likes),
       dislikes: parseInt(this.props.dislikes),
+      text: this.props.review,
     };
 
     // Binding Methods
     this.like = this.like.bind(this);
     this.dislike = this.dislike.bind(this);
+    this.reviewCardDoubleClicked = this.reviewCardDoubleClicked.bind(this);
+    this.reviewCardBlured = this.reviewCardBlured.bind(this);
+    this.reviewCardKeyUpped = this.reviewCardKeyUpped.bind(this);
+  }
+  reviewCardKeyUpped(e)
+  {
+    e.preventDefault();
+    if (e.key === "Enter")    
+      this.reviewCardBlured(e);    
+  }
+  reviewCardBlured(e) {
+    let target = e.currentTarget;
+    let text = target.innerText.trim();
+    let formData = {
+      id: this.props.reviewId,
+      text: text,
+    };
+    let api = `${getHost()}/customer/editreview`;
+    if (text === "") {
+      target.focus();
+      return;
+    }
+    target.setAttribute("contenteditable", "false");
+    target.setAttribute("class", "customer-review-card-bottom");
+
+    if (this.state.text === text) return;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      console.log(data);
+    });
+  }
+  reviewCardDoubleClicked(e) {    
+    if (this.props.userId !== parseInt(Cookies.get("id"))) return;
+    let target = e.currentTarget;
+    let text = target.innerText.trim();
+    this.setState({ text: text });
+    target.setAttribute("contenteditable", "true");
+    target.setAttribute("class", "customer-review-card-bottom-editable");
+    target.focus();
   }
   dislike(e) {
+    if (this.props.disabled) return;
     let target = e.currentTarget.children[0];
     let className = "review-liked";
     if (target.classList.contains(className)) return;
     let current = this.rootRef.current
       .querySelectorAll(".customer-review-card-right i")
       .forEach((element) => {
-        if (element.classList.contains(className))
-        {
+        if (element.classList.contains(className)) {
           element.classList.remove(className);
           this.setState({ likes: this.state.likes - 1 });
         }
       });
     target.classList.toggle(className);
-    this.setState({ dislikes: this.state.dislikes + 1 });
+    this.setState({ dislikes: this.state.dislikes + 1 }, () => {
+      let formData = {
+        id: this.props.reviewId,
+        likes: this.state.likes,
+        dislikes: this.state.dislikes,
+      };
+      let api = `${getHost()}/customer/addreaction`;
+      Axios.post(api, formData).then((response) => {
+        let data = response.data;
+        console.log(data);
+      });
+    });
   }
   like(e) {
+    if (this.props.disabled) return;
     let target = e.currentTarget.children[0];
     let className = "review-liked";
     if (target.classList.contains(className)) return;
     let current = this.rootRef.current
       .querySelectorAll(".customer-review-card-right i")
       .forEach((element) => {
-        if (element.classList.contains(className))
-        {
+        if (element.classList.contains(className)) {
           element.classList.remove(className);
           this.setState({ dislikes: this.state.dislikes - 1 });
         }
       });
-    target.classList.toggle(className);    
-    this.setState({ likes: this.state.likes + 1 });
+    target.classList.toggle(className);
+    this.setState({ likes: this.state.likes + 1 }, () => {
+      let formData = {
+        id: this.props.reviewId,
+        likes: this.state.likes,
+        dislikes: this.state.dislikes,
+      };
+      let api = `${getHost()}/customer/addreaction`;
+      Axios.post(api, formData).then((response) => {
+        let data = response.data;
+        console.log(data);
+      });
+    });
   }
   componentDidMount() {
     this.id = this.props.reviewId;
@@ -88,7 +153,14 @@ class CustomerReviewCard extends Component {
               </time>
             </div>
           </div>
-          <div className="customer-review-card-bottom">{this.props.review}</div>
+          <div
+            className="customer-review-card-bottom"
+            onBlur={this.reviewCardBlured}
+            onDoubleClick={this.reviewCardDoubleClicked}
+            onKeyUp={this.reviewCardKeyUpped}
+          >
+            {this.props.review}
+          </div>
         </div>
         <div className="customer-review-card-right">
           <p>
@@ -96,6 +168,7 @@ class CustomerReviewCard extends Component {
               iconClass="bi bi-hand-thumbs-up-fill"
               onClick={this.like}
               tooltip="Like"
+              disabled={!this.props.canReact}
             />
             {this.state.likes}
           </p>
@@ -104,6 +177,7 @@ class CustomerReviewCard extends Component {
               iconClass="bi bi-hand-thumbs-down-fill"
               tooltip="Dislike"
               onClick={this.dislike}
+              disabled={!this.props.canReact}
             />
             {this.state.dislikes}
           </p>

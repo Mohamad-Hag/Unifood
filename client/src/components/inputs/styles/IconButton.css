@@ -7,11 +7,19 @@
     background: transparent;
     position: relative;
 }
-.icon-btn:hover
+.icon-btn:disabled
+{    
+    cursor: default;
+}
+.icon-btn:disabled i
+{
+    color: #ccc;
+}
+.icon-btn:hover:not(:disabled)
 {
     background: #eee;
 }
-.icon-btn:active
+.icon-btn:active:not(:disabled)
 {
     background: #ccc;
 }
@@ -19,7 +27,7 @@
 {
     box-shadow: 0 0 0 3px #23314240;
 }
-.icon-btn:hover .tool-tip
+.icon-btn:hover:not(:disabled) .tool-tip
 {
     visibility: visible;
     opacity: 1;
@@ -49,7 +57,12 @@
     {
         visibility: hidden;
         opacity: 0;
-        top: 100%;        
+        top: 100%;
+        display: none;
+    }
+    .icon-btn:hover
+    {
+        background: transparent;
     }
     .icon-btn:focus
     {

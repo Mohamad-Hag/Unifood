@@ -27,6 +27,7 @@ class Restaurants extends Component {
       categories: [],
       restaurants: [],
       expandMenuIcon: "fa fa-chevron-up",
+      user: {},
     };
 
     // Binding Methods
@@ -40,6 +41,15 @@ class Restaurants extends Component {
     this.getchangeSelectedItemToIntersected =
       this.changeSelectedItemToIntersected.bind(this);
     this.expandMenuClicked = this.expandMenuClicked.bind(this);
+    this.getCartCount = this.getCartCount.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
+  }
+  getCartCount() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items || items.length === 0) return null;
+    return items.length.toString();
   }
   expandMenuClicked() {
     let menu = document.querySelector("#categories-sidebar");
@@ -78,16 +88,18 @@ class Restaurants extends Component {
       });
       this.setState({ restaurants: newData }, () => {
         document.querySelector("#restaurants-loader").style.display = "none";
+        let hash = window.location.hash;
+        if (hash) document.querySelector(hash).scrollIntoView();
       });
     });
   }
   getNotifications() {
-    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const api = `${getHost()}/customer/getnotifications`;
     const id = Cookies.get("id");
     const postData = { id: id };
     let pro = new Promise(async (resolve) => {
       let notifications = [];
-      await Axios.post(getNotificationsAPI, postData).then((response) => {
+      await Axios.post(api, postData).then((response) => {
         let data = response.data;
         let markAsReadOnClick = function () {
           alert("hello");
@@ -105,7 +117,9 @@ class Restaurants extends Component {
     const postData = { id: id };
     await Axios.post(getNotificationsAPI, postData).then((response) => {
       let data = response.data;
-      this.setState({ notificationsCount: data.length });
+      this.setState({
+        notificationsCount: data.filter((x) => !x.isRead).length,
+      });
     });
   }
   notificationsClicked() {
@@ -146,8 +160,27 @@ class Restaurants extends Component {
       });
     }, 1000);
   }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data });
+    });
+  }
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
   componentDidMount() {
-    this.setState({ cartCount: "1"});
+    if (!this.checkSignIn()) {
+      window.location.replace("/");
+      return;
+    }
+    this.setState({ cartCount: this.getCartCount() });
+    this.getUser();
     this.setNotificationsCount();
     this.getCategories();
     this.getRestaurants();
@@ -174,6 +207,8 @@ class Restaurants extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
+          profilePhoto={this.state.user.Image}
+          profileLink="/profile"
         />
         <main id="restaurants-main">
           <div id="restaurants-loader">
@@ -203,7 +238,7 @@ class Restaurants extends Component {
                               photo={prodcut.Image}
                               category={prodcut.Name}
                               description={prodcut.Description}
-                              restaurantName={restaurant.text}                              
+                              restaurantName={restaurant.text}
                             />
                           );
                         })}

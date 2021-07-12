@@ -3,6 +3,9 @@ import CustomerProductCard from "../cards/CustomerProductCard";
 import "./styles/FavoriteList.css";
 import Axios from "axios";
 import CircleLoader from "../loaders/CircleLoader";
+import getHost from "../assitance-methods/getHost";
+import Cookies from "../assitance-methods/Cookies";
+import NoFavorites from "../../assets/vectors/NoFavorites.svg";
 
 class FavoriteList extends Component {
   constructor(props) {
@@ -18,17 +21,27 @@ class FavoriteList extends Component {
     };
 
     // Binding Methods
+    this.getFavorites = this.getFavorites.bind(this);
+  }
+  getFavorites() {
+    let formData = {
+      category: "All",
+      id: Cookies.get("id"),
+      restId: null,
+      ignorRestaurant: true,
+      getAll: true,
+    };
+    let api = `${getHost()}/customer/getproducts`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.filter((x) => x.IsFavorite);
+      this.setState({ favorites: data }, () => {
+        let loader = document.querySelector("#favorites-loading");
+        if (loader) loader.remove();
+      });
+    });
   }
   componentDidMount() {
-    Axios.get("https://www.themealdb.com/api/json/v1/1/search.php?s=i").then(
-      (response) => {
-        let data = response.data.meals.slice(0, 10);
-        this.setState({ favorites: data }, () => {
-          let loader = document.querySelector("#favorites-loading");
-          if (loader) loader.remove();
-        });
-      }
-    );
+    this.getFavorites();
   }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
@@ -42,27 +55,45 @@ class FavoriteList extends Component {
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
         onMouseOver={this.props.onMouseOver}
-        style={this.props.style}
+        style={{display: this.state.favorites.length === 0 ? "block" : "grid"}}
       >
-        {this.state.favorites.map((favorite, i) => {
-          return (
-            <CustomerProductCard
-              id={favorite.idMeal}
-              isFavorite={true}
-              name={favorite.strMeal}
-              price="$45.5"
-              description={favorite.strInstructions.slice(0, 200)}
-              photo={favorite.strMealThumb}
-              onProductAdd={this.props.productAdded}
-              hasTags={true}
-              isOffer={i % 2 === 0 ? true : false}
-              isNew={true}
-              isAvailable={i % 2 === 0 ? true : false}
-              rating={3}
-              offerTooltip="50% Off!"
-            />
-          );
-        })}
+        {this.state.favorites.length === 0 ? (
+          <div id="no-favorites-ill">
+            <img alt="" src={NoFavorites} />
+            <p>There is no items in favorite list, try to add a new one...</p>
+          </div>
+        ) : (
+          this.state.favorites.map((favorite, i) => {
+            let hasTags = false;
+            if (
+              favorite.HasOffer ||
+              !Boolean(favorite.IsAvailable) ||
+              favorite.IsNew
+            )
+              hasTags = true;
+            return (
+              <CustomerProductCard
+                id={favorite.ID}
+                isFavorite={true}
+                name={favorite.Name}
+                price={`$ ${favorite.Price}`}
+                description={favorite.Description}
+                photo={favorite.Image}
+                onProductAdd={this.props.onProductAdd}
+                hasTags={hasTags}
+                isOffer={favorite.HasOffer ? true : false}
+                isNew={favorite.IsNew}
+                isAvailable={Boolean(favorite.IsAvailable)}
+                rating={favorite.Rate}
+                offerTooltip={
+                  favorite.HasOffer ? favorite.OfferDescription : null
+                }
+                restaurantName={favorite.RestaurantName}
+                removeOnFavorite={true}
+              />
+            );
+          })
+        )}
         <div id="favorites-loading">
           <CircleLoader isActive={this.state.loading} />
         </div>

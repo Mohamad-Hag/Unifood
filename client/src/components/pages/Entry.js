@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import "./styles/Entry.css";
-  
+
 // Assets
 import RoleSelection from "../fixtures/RoleSelection";
+import Cookies from "../assitance-methods/Cookies";
 
 class Entry extends Component {
   constructor(props) {
@@ -18,8 +19,15 @@ class Entry extends Component {
     };
 
     //Bindings Methods
+    this.checkSignIn = this.checkSignIn.bind(this);
   }
-  componentDidMount() {}
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
+  componentDidMount() {
+    if (this.checkSignIn()) window.location.replace("/restaurants");
+  }
   render() {
     return (
       <div ref={this.ref} id="entry-container">

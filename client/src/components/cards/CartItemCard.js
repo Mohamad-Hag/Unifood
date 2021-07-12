@@ -14,26 +14,30 @@ class CartItemCard extends Component {
     this.state = {
       counter: 1,
       id: 0,
+      price: this.props.price,
     };
 
     // Binding Methods
     this.plusClicked = this.plusClicked.bind(this);
     this.minusClicked = this.minusClicked.bind(this);
     this.removeClicked = this.removeClicked.bind(this);
+    this.setStorageCounter = this.setStorageCounter.bind(this);
   }
   removeClicked() {
-    let current = this.rootRef.current;
-    let delay =
-      parseFloat(
-        getComputedStyle(current)
-          .getPropertyValue("transition-duration")
-          .slice(0, -1)
-      ) * 1000;
-    current.classList.add("cart-item-card-container-disappear");
+    this.rootRef.current.classList.add("cart-item-card-removed-state");
     setTimeout(() => {
-      this.props.onRemove(this.state.id);
-      if (current) current.remove();
-    }, delay);    
+      let current = this.rootRef.current;
+      let storage = localStorage;
+      let items = JSON.parse(storage.getItem("items"));
+      items = items.filter((item) => item.id !== this.state.id);
+      let ct = 0;
+      items.forEach((item) => {
+        ct = ct + item.price;
+      });
+      storage.setItem("cartTotal", ct);
+      storage.setItem("items", JSON.stringify(items));
+      if (this.props.onRemove) this.props.onRemove(this.state.id);
+    }, 300);
   }
   plusClicked() {
     let current = this.rootRef.current;
@@ -42,6 +46,8 @@ class CartItemCard extends Component {
     let newCounter = oldCounter < 10000 ? oldCounter + 1 : oldCounter;
     display.innerText = newCounter;
     this.setState({ counter: newCounter });
+    this.setStorageCounter(newCounter);
+    if (this.props.onItemChange) this.props.onItemChange("plus");
   }
   minusClicked() {
     let current = this.rootRef.current;
@@ -50,6 +56,27 @@ class CartItemCard extends Component {
     let newCounter = oldCounter > 1 ? oldCounter - 1 : oldCounter;
     display.innerText = newCounter;
     this.setState({ counter: newCounter });
+    this.setStorageCounter(newCounter);
+    if (this.props.onItemChange) this.props.onItemChange("minus");
+  }
+  setStorageCounter(newCounter) {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    items.forEach((item) => {
+      if (item.id === this.state.id) {
+        let price = item.price / item.count;
+        item.count = newCounter;
+        item.price = price * newCounter;
+        this.setState({ price: item.price });
+        return;
+      }
+    });
+    let ct = 0;
+    items.forEach((item) => {
+      ct = ct + item.price;
+    });
+    storage.setItem("cartTotal", ct);
+    storage.setItem("items", JSON.stringify(items));
   }
   componentDidMount() {
     this.setState({ counter: this.props.count });
@@ -68,6 +95,7 @@ class CartItemCard extends Component {
         onMouseUp={this.props.onMouseUp}
         onMouseOver={this.props.onMouseOver}
         style={this.props.style}
+        itemId={this.props.itemId}
       >
         <div className="cart-item-card-details">
           <img
@@ -88,14 +116,16 @@ class CartItemCard extends Component {
           ) : null}
         </div>
         <p className="cart-item-card-price-counter">
-          {this.props.isAvailable ? <div className="cart-item-card-counter">
-            <IconButton iconClass="fa fa-plus" onClick={this.plusClicked} />
-            <span className="customer-product-card-count">
-              {this.state.counter}
-            </span>
-            <IconButton iconClass="fa fa-minus" onClick={this.minusClicked} />
-          </div> : null}          
-          <span className="cart-item-card-price">${this.props.price}</span>
+          {this.props.isAvailable ? (
+            <div className="cart-item-card-counter">
+              <IconButton iconClass="fa fa-plus" onClick={this.plusClicked} />
+              <span className="customer-product-card-count">
+                {this.state.counter}
+              </span>
+              <IconButton iconClass="fa fa-minus" onClick={this.minusClicked} />
+            </div>
+          ) : null}
+          <span className="cart-item-card-price">${this.state.price}</span>
           <div className="trash-sep"></div>
           <IconButton
             iconClass="bi bi-trash"

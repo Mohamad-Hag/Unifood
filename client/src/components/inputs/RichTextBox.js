@@ -15,9 +15,13 @@ class RichTextBox extends Component {
 
   render() {
     return (
-      <div id={this.props.id} className="default-rich-text-box-container">
+      <div
+        id={this.props.id}
+        className="default-rich-text-box-container"
+        style={this.props.style}
+      >
         <div className="rich-text-box-inner-container">
-          <textarea
+          <textarea            
             onChange={this.props.onChange}
             onInput={this.props.onChange}
             onBlur={this.props.onBlur}
@@ -26,6 +30,8 @@ class RichTextBox extends Component {
             placeholder={this.props.placeholder}
             spellCheck="false"
             disabled={this.props.disabled}
+            style={this.props.inputStyle}
+            id={this.props.inputId}
           />
         </div>
         <div id={this.props.errorId} className="rich-text-box-error">

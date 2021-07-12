@@ -44,21 +44,23 @@ class NotificationsPanel extends Component {
           $("#notifications-panel-footer").css("display", "none");
         } else {
           ReactDOM.render(
-            notifications.map((element) => {
+            notifications.map((element) => {console.log(element.isRead);
               return (
                 <NotificationsPanelItem
+                  itemId={element.id}
                   from={element.from}
                   description={element.description}
                   time={element.time}
-                  isRead={element.isRead} 
+                  isRead={element.isRead.toString()}
                   markAsReadOnClick={element.markAsReadOnClick}
                 />
               );
             }),
-            document.querySelector("#notifications-panel-items")
-          , () => {
-            $("#notifications-panel-footer").css("display", "block");
-          });          
+            document.querySelector("#notifications-panel-items"),
+            () => {
+              $("#notifications-panel-footer").css("display", "block");
+            }
+          );
         }
         this.setState({ isLoaderActive: "false" });
       });

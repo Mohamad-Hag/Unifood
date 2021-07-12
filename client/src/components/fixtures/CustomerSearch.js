@@ -11,6 +11,7 @@ import CustomerSearchResults from "./CustomerSearchResults";
 import Axios from "axios";
 import getHost from "../assitance-methods/getHost";
 import Cookies from "../assitance-methods/Cookies";
+import StringProcessor from "../assitance-methods/StringProcessor";
 
 class CustomerSearch extends Component {
   constructor(props) {
@@ -25,6 +26,7 @@ class CustomerSearch extends Component {
       products: [],
       categories: [],
       restaurants: [],
+      allRestaurants: [],
     };
 
     // Binding Methods
@@ -98,13 +100,32 @@ class CustomerSearch extends Component {
       let data = response.data.filter((d) =>
         d.Name.toLowerCase().trim().includes(searchQuery)
       );
+      this.setState({ allRestaurants: response.data });
       this.setState({ restaurants: data });
     });
   }
   onSearchInValueSelected(value, index) {}
   UNSAFE_componentWillMount() {}
 
-  componentDidMount() {}
+  componentDidMount() {
+    document.onkeyup = (e) => {
+      if (e.key === "Escape") {
+        this.searchBackClicked();
+        this.ref.current.querySelector("#customer-search-back").focus();
+      }
+    };
+    document.onkeydown = (e) => {
+      if (
+        e.ctrlKey &&
+        e.keyCode == 81 &&
+        !(e.shiftKey || e.altKey || e.metaKey)
+      ) {
+        $("#customer-search-container").slideDown(150);
+        $("#customer-search-in").focus();
+        $("body").css("overflow-y", "hidden");
+      }
+    };
+  }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
 
@@ -152,6 +173,9 @@ class CustomerSearch extends Component {
                           : product.Price),
                       rating: product.Rate,
                       photo: product.Image,
+                      to: `/restaurant/${StringProcessor.encodeURLWord(
+                        product.RestaurantName
+                      )}/product/${product.ID}`,
                     };
                   })}
                 />
@@ -163,12 +187,17 @@ class CustomerSearch extends Component {
               iconClass: "bi bi-grid-fill",
               content: (
                 <CustomerSearchResults
-                  results={this.state.categories.map((category) => {
+                  results={this.state.categories.map((category, i) => {
                     return {
                       resultId: category.ID,
                       title: category.Name,
                       caption: `From: ${category.RestaurantName}`,
                       photo: category.Image,
+                      to: `/restaurants/${StringProcessor.encodeURLWord(
+                        category.RestaurantName
+                      )}?category=${StringProcessor.encodeURLWord(
+                        category.Name
+                      )}&filter=none`,
                     };
                   })}
                 />
@@ -179,13 +208,16 @@ class CustomerSearch extends Component {
               iconClass: "bi bi-tags-fill",
               content: (
                 <CustomerSearchResults
-                  results={this.state.restaurants.map((restaurant) => {
+                  results={this.state.restaurants.map((restaurant, i) => {
                     return {
                       resultId: restaurant.ID,
                       title: restaurant.Name,
                       caption:
                         restaurant.IsClosed === 0 ? "Open Now" : "Closed",
                       photo: restaurant.Image,
+                      to: `/restaurants#restaurant${this.state.allRestaurants.findIndex(
+                        (c) => c.ID === restaurant.ID
+                      )}`,
                     };
                   })}
                 />

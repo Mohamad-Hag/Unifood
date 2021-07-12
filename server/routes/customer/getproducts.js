@@ -28,7 +28,7 @@ router.post("/", (req, res) => {
     productsCommand = `SELECT * FROM product WHERE CategoryID IN (SELECT ID FROM category WHERE RestaurantID = ${restId})`;
   }
   if (ignorRestaurant) {
-    productsCommand = `SELECT p.*, u.Name AS RestaurantName FROM product p, category c, user u, restaurant r WHERE r.UserID = u.ID AND c.RestaurantID = r.ID and p.CategoryID = c.ID`;
+    productsCommand = `SELECT p.*, u.Name AS RestaurantName, c.Name AS CategoryName FROM product p, category c, user u, restaurant r WHERE r.UserID = u.ID AND c.RestaurantID = r.ID and p.CategoryID = c.ID`;
   }
   let customerIdCommand = `SELECT ID FROM customer WHERE UserID = ${id}`;
   let favoritesCommand = `SELECT ProductID FROM favorite WHERE CustomerID = ?`;

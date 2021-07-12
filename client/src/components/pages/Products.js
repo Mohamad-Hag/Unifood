@@ -48,6 +48,7 @@ class Products extends Component {
       filterProducts: [],
       selectedFilter: "None",
       selectedCategory: "All",
+      user: {},
     };
 
     // Binding Methods
@@ -66,6 +67,10 @@ class Products extends Component {
     this.triggerPopState = this.triggerPopState.bind(this);
     this.checkParameter = this.checkParameter.bind(this);
     this.getParameter = this.getParameter.bind(this);
+    this.getCartCount = this.getCartCount.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
   }
   checkParameter(name) {
     let urlParams = new URLSearchParams(window.location.search);
@@ -115,8 +120,12 @@ class Products extends Component {
     });
   }
   productAdded(id, added) {
-    let count = this.state.cartCount;
+    let count = !this.state.cartCount ? 0 : parseInt(this.state.cartCount);
     count = added ? count + 1 : count - 1;
+    if (count === 0) {
+      this.setState({ cartCount: null });
+      return;
+    }
     this.setState({ cartCount: count });
   }
   triggerPopState() {
@@ -153,9 +162,27 @@ class Products extends Component {
       this.setState({ isNotificationsOpen: "false" });
     }
   }
+  async setNotificationsCount() {
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    await Axios.post(getNotificationsAPI, postData).then((response) => {
+      let data = response.data;
+      this.setState({
+        notificationsCount: data.filter((x) => !x.isRead).length,
+      });
+    });
+  }
   getNotifications() {
-    let notifications = [];
-    let pro = new Promise((resolve) => {
+    const api = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    let pro = new Promise(async (resolve) => {
+      let notifications = [];
+      await Axios.post(api, postData).then((response) => {
+        let data = response.data;
+        notifications = data;
+      });
       resolve(notifications);
     });
     return pro;
@@ -191,7 +218,8 @@ class Products extends Component {
     if (category === null) category = "All";
     Axios.post(`${getHost()}/customer/getproducts`, formData).then(
       (response) => {
-        let data = response.data; // pizza's
+        let data = response.data;
+        console.log(data);
         this.setState({ selectedCategory: category });
         if (filter === "Top Rated") {
           data = data.filter((prod) => prod.Rate >= 3);
@@ -279,8 +307,34 @@ class Products extends Component {
       });
     }
   }
+  getCartCount() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items || items.length === 0) return null;
+    return items.length.toString();
+  }
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data });
+    });
+  }
   componentDidMount() {
-    this.setState({ cartCount: 1, notificationsCount: 2 });
+    if (!this.checkSignIn()) {
+      window.location.replace("/");
+      return;
+    }
+    this.setState({ cartCount: this.getCartCount() });
+    this.setNotificationsCount();
+    this.getUser();
     this.getRestaurant();
     this.id = this.props.id;
     setTimeout(() => {
@@ -309,6 +363,8 @@ class Products extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
+          profilePhoto={this.state.user.Image}
+          profileLink="/profile"
         />
         <div id="prodcuts-header">
           <div id="product-header-left">
@@ -321,17 +377,25 @@ class Products extends Component {
               }}
             />
             <div id="restaurant-img-container">
-              <img
-                id="restaurant-img"
-                alt=""
-                src={this.state.restaurantImage}
-                onLoad={() => {
-                  let loader = document.querySelector("#restaurant-img-loader");
-                  setTimeout(() => {
-                    loader.style.display = "none";
-                  }, 500);
-                }}
-              />
+              <a
+                href={`/restaurants/${StringProcessor.encodeURLWord(
+                  this.state.restaurantName
+                )}`}
+              >
+                <img
+                  id="restaurant-img"
+                  alt=""
+                  src={this.state.restaurantImage}
+                  onLoad={() => {
+                    let loader = document.querySelector(
+                      "#restaurant-img-loader"
+                    );
+                    setTimeout(() => {
+                      loader.style.display = "none";
+                    }, 500);
+                  }}
+                />
+              </a>
               <div id="restaurant-img-loader">
                 <CircleLoader isActive="true" size="small" />
               </div>
@@ -372,7 +436,10 @@ class Products extends Component {
         <main id="products-main">
           <div id="no-products-ill">
             <img alt="" src={NoProductsImg} />
-            <p>Category '{this.state.selectedCategory}' and filter '{this.state.selectedFilter}' not match...</p>
+            <p>
+              Category '{this.state.selectedCategory}' and filter '
+              {this.state.selectedFilter}' not match...
+            </p>
           </div>
           {this.state.products.map((product, i) => {
             let hasTags = false;
@@ -381,6 +448,7 @@ class Products extends Component {
             return (
               <CustomerProductCard
                 id={product.ID}
+                restaurantName={this.state.restaurantName}
                 isFavorite={product.IsFavorite}
                 name={product.Name}
                 price={
@@ -400,7 +468,9 @@ class Products extends Component {
                 }
                 rating={product.Rate}
                 offerTooltip={product.OfferDescription}
-                counter={1}
+                removeOnFavorite={
+                  this.state.selectedFilter === "My Favorites" ? true : false
+                }
               />
             );
           })}

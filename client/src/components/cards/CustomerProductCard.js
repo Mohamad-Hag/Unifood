@@ -5,6 +5,10 @@ import Badges from "../labels/Badges";
 import CircleLoader from "../loaders/CircleLoader";
 import "./styles/CustomerProductCard.css";
 import AOS from "aos";
+import Cookies from "../assitance-methods/Cookies";
+import Axios from "axios";
+import getHost from "../assitance-methods/getHost";
+import StringProcessor from "../assitance-methods/StringProcessor";
 
 class CustomerProductCard extends Component {
   constructor(props) {
@@ -25,7 +29,9 @@ class CustomerProductCard extends Component {
         ),
         icon: "bi bi-cart-plus",
       },
+      isAddedToCart: false,
     };
+    this.isBusy = false;
 
     // Binding Methods
     this.addToFavorites = this.addToFavorites.bind(this);
@@ -34,6 +40,7 @@ class CustomerProductCard extends Component {
     this.photoLoaded = this.photoLoaded.bind(this);
     this.viewDetailsClicked = this.viewDetailsClicked.bind(this);
     this.addToCartClicked = this.addToCartClicked.bind(this);
+    this.checkAddToCart = this.checkAddToCart.bind(this);
   }
   addToCartClicked(e) {
     if (!this.props.isAvailable) return;
@@ -59,11 +66,74 @@ class CustomerProductCard extends Component {
       },
     });
     let productAdded = oldIcon === iconClass ? true : false;
+    let storage = localStorage;
+    if (!storage.getItem("items")) storage.setItem("items", JSON.stringify([]));
+    let items = JSON.parse(storage.getItem("items"));
+
+    if (productAdded) {
+      items.push({
+        id: this.props.id,
+        photo: this.props.photo,
+        name: this.props.name,
+        price: parseInt(this.props.price.slice(1)) * this.state.counter,
+        count: this.state.counter,
+      });
+    } else {
+      items = items.filter((x) => x.id !== this.props.id);
+    }
+    let cartTotal = 0;
+    items.forEach((item) => {      
+      cartTotal = cartTotal + item.price;      
+    });
+    storage.setItem("cartTotal", cartTotal);
+    storage.setItem("items", JSON.stringify(items));
     if (this.props.onProductAdd)
       this.props.onProductAdd(this.props.id, productAdded);
   }
+  checkAddToCart() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items) return;
+    let index = items.findIndex((x) => x.id === this.props.id);
+    let text, icon;
+    if (index > -1) {
+      setTimeout(() => {
+        let current = this.rootRef.current;
+        if (!current) return;
+        let target = current.querySelector("#customer-product-card-add");
+        target.classList.add("remove-from-cart-btn");
+      }, 100);
+      this.setState({ counter: items[index].count });
+      text = (
+        <span style={{ color: "var(--secondry-text-color)" }}>
+          Remove From Cart&nbsp;&nbsp;&nbsp;
+        </span>
+      );
+      icon = "bi bi-cart-dash";
+    } else {
+      setTimeout(() => {
+        let current = this.rootRef.current;
+        if (!current) return;
+        let target = current.querySelector("#customer-product-card-add");
+        target.classList.remove("remove-from-cart-btn");
+        this.setState({ counter: 1 });
+      }, 100);
+      text = (
+        <span style={{ color: "var(--secondry-text-color)" }}>
+          Add To Cart&nbsp;&nbsp;&nbsp;
+        </span>
+      );
+      icon = "bi bi-cart-plus";
+    }
+    this.setState({
+      cartButton: {
+        text: text,
+        icon: icon,
+      },
+    });
+  }
   viewDetailsClicked() {
-    window.location.href = `/restaurants/name/${this.props.id}`;
+    window.location.href = `/restaurant/${StringProcessor.encodeURLWord(this.props.restaurantName)}/product/${this.props.id}`;
   }
   photoLoaded(e) {
     let target = e.currentTarget;
@@ -71,7 +141,33 @@ class CustomerProductCard extends Component {
     if (loader) loader.remove();
   }
   addToFavorites() {
-    this.setState({ isFavorite: !this.state.isFavorite });
+    if (this.isBusy) return;
+    this.isBusy = true;
+    let process = "add";
+    if (this.state.isFavorite) process = "remove";
+
+    let formData = {
+      id: Cookies.get("id"),
+      productId: this.props.id,
+      process: process,
+    };
+    let api = `${getHost()}/customer/addremovefavorite`;
+
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;      
+      this.isBusy = true;
+    });
+    this.setState({ isFavorite: !this.state.isFavorite }, () => {
+      if (this.props.removeOnFavorite)
+      {
+        let current = this.rootRef.current;
+        current.style.transform = "scale(0.5)";
+        current.style.opacity = "0";
+        setTimeout(() => {
+          current.remove();
+        }, 300)        
+      }      
+    });
   }
   minusClicked() {
     let current = this.rootRef.current;
@@ -91,13 +187,17 @@ class CustomerProductCard extends Component {
   }
   componentDidMount() {
     AOS.init();
+    this.checkAddToCart();
   }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {
     this.setState({
       isFavorite: newPro.isFavorite,
       counter: newPro.counter ? newPro.counter : this.state.counter,
-    });
+    });    
+    setTimeout(() => {
+      this.checkAddToCart();
+    }, 100);
   }
   render() {
     return (
@@ -186,6 +286,7 @@ class CustomerProductCard extends Component {
             />
           </div>
           <DefaultButton
+            id="customer-product-card-add"
             onClick={this.addToCartClicked}
             text={this.state.cartButton.text}
             iconClass={this.state.cartButton.icon}

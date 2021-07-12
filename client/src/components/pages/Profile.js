@@ -14,6 +14,9 @@ import FavoriteList from "../fixtures/FavoriteList";
 import ProfileSettings from "../fixtures/ProfileSettings";
 import p1 from "../../assets/images/Myphoto.jpg";
 import Footer from "../fixtures/Footer";
+import getHost from "../assitance-methods/getHost";
+import Cookies from "../assitance-methods/Cookies";
+import Axios from "axios";
 
 class Profile extends Component {
   constructor(props) {
@@ -27,6 +30,9 @@ class Profile extends Component {
       isNotificationsOpen: "false",
       notificationsCount: null,
       cartCount: null,
+      user: {},
+      img: null,
+      image: null,
     };
 
     // Binding Methods
@@ -34,15 +40,76 @@ class Profile extends Component {
     this.getNotifications = this.getNotifications.bind(this);
     this.notificationsClicked = this.notificationsClicked.bind(this);
     this.searchClicked = this.searchClicked.bind(this);
+    this.getCartCount = this.getCartCount.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
+    this.photoSelected = this.photoSelected.bind(this);
+    this.productAdded = this.productAdded.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
+  }
+  productAdded(id, added) {
+    let cartCount = parseInt(this.state.cartCount);
+    if (added) {
+      this.setState({
+        cartCount: cartCount ? (cartCount + 1).toString() : "1",
+      });
+    } else {
+      this.setState({
+        cartCount: cartCount !== 1 ? (cartCount - 1).toString() : null,
+      });
+    }
+  }
+  photoSelected(e) {
+    try {
+      this.setState({ img: URL.createObjectURL(e.target.files[0]) });
+      $("#profile-img").attr("src", this.state.img);
+      $("#header-profile-photo").attr("src", this.state.img);
+      this.setState({ image: e.target.files[0] }, () => {
+        let formData = new FormData();
+        formData.append("id", Cookies.get("id"));
+        formData.append("img", this.state.image);
+
+        let api = `${getHost()}/customer/uploadprofilephoto`;
+        Axios.post(api, formData).then((response) => {
+          let data = response.data;
+          console.log(response.data);
+        });
+      });
+    } catch {}
+  }
+  getCartCount() {
+    let storage = localStorage;
+    let items = JSON.parse(storage.getItem("items"));
+    if (!items || items.length === 0) return null;
+    return items.length.toString();
   }
   notificationsClosed() {
     if (this.state.isNotificationsOpen === "true") {
       this.setState({ isNotificationsOpen: "false" });
     }
   }
+  async setNotificationsCount() {
+    const getNotificationsAPI = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    await Axios.post(getNotificationsAPI, postData).then((response) => {
+      let data = response.data;
+
+      this.setState({
+        notificationsCount: data.filter((x) => !x.isRead).length,
+      });
+    });
+  }
   getNotifications() {
-    let notifications = [];
-    let pro = new Promise((resolve) => {
+    const api = `${getHost()}/customer/getnotifications`;
+    const id = Cookies.get("id");
+    const postData = { id: id };
+    let pro = new Promise(async (resolve) => {
+      let notifications = [];
+      await Axios.post(api, postData).then((response) => {
+        let data = response.data;
+        notifications = data;
+      });
       resolve(notifications);
     });
     return pro;
@@ -59,8 +126,29 @@ class Profile extends Component {
     $("#customer-search-in").focus();
     $("body").css("overflow-y", "hidden");
   }
+  checkSignIn() {
+    if (Cookies.get("id") !== "") return true;
+    return false;
+  }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data });
+    });
+  }
   componentDidMount() {
-    this.setState({ cartCount: 1, notificationsCount: 2 });
+    if (!this.checkSignIn()) {
+      window.location.replace("/");
+      return;
+    }
+    this.getUser();
+    this.setState({ cartCount: this.getCartCount() });
+    $("#profile-img-fin").change(this.photoSelected);
+    this.setNotificationsCount();
   }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
@@ -83,17 +171,32 @@ class Profile extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
+          profilePhoto={this.state.user.Image}
+          profileLink="/profile"
         />
         <div id="profile-intro">
-          <div id="profile-img-container">
-            <img id="profile-img" src={p1} alt="" />
+          <label htmlFor="profile-img-fin" id="profile-img-container">
+            <img
+              id="profile-img"
+              src={this.state.user.Image ? this.state.user.Image : null}
+              alt=""
+            />
             <div id="profile-img-mask">
               <i className="bi bi-camera"></i>
             </div>
-          </div>
+            <input id="profile-img-fin" accept="image/*" type="file" />
+          </label>
           <div id="profile-basic-info">
-            <p>Mohamad Hag</p>
-            <span>mohamadhag99@gmail.com</span>
+            <p>{this.state.user.Name}</p>
+            <span>Online Now</span>
+            <DefaultButton
+              id="browse-restaurants-btn"
+              iconClass="bi bi-arrow-up-right-square"
+              text="Browse Restaurants"
+              onClick={() => {
+                window.location.href = "/restaurants";
+              }}
+            />
           </div>
         </div>
         <TabControl
@@ -103,43 +206,18 @@ class Profile extends Component {
               text: "Recent Orders",
               iconClass: "bi bi-clock-history",
               isActive: true,
-              content: (
-                <RecentOrders
-                  orders={[
-                    {
-                      date: "12 May 2021",
-                      total: "50.5",
-                    },
-                    {
-                      date: "12 May 2021",
-                      total: "50.5",
-                    },
-                    {
-                      date: "12 May 2021",
-                      total: "50.5",
-                    },
-                    {
-                      date: "12 May 2021",
-                      total: "50.5",
-                    },
-                    {
-                      date: "12 May 2021",
-                      total: "50.5",
-                    },
-                  ]}
-                />
-              ),
+              content: <RecentOrders />,
             },
             {
               text: "Favorite List",
               iconClass: "bi bi-heart",
-              content: <FavoriteList />,
+              content: <FavoriteList onProductAdd={this.productAdded} />,
             },
             {
               text: "Settings",
               iconClass: "bi bi-gear",
               content: <ProfileSettings />,
-            }
+            },
           ]}
         />
         <Footer />

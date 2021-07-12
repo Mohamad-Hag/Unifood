@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import DefaultButton from "../inputs/DefaultButton";
 import "./styles/NotificationsPanelItem.css";
 import $ from "jquery";
+import Cookies from "../assitance-methods/Cookies";
+import getHost from "../assitance-methods/getHost";
+import Axios from "axios";
 
 class NotificationsPanelItem extends Component {
   constructor(props) {
@@ -25,6 +28,16 @@ class NotificationsPanelItem extends Component {
     this.ref.current.childNodes[1].childNodes[1].style.display = "none";
     this.ref.current.childNodes[0].style.display = "none";
     this.ref.current.focus();
+
+    let formData = {
+      id: parseInt(Cookies.get("id")),
+      notid: this.props.itemId,
+    }
+    let api = `${getHost()}/customer/markasread`
+    Axios.post(api, formData).then((response) => {
+      let data = response.data;
+      console.log(data);
+    });
   }
   addClickListenerToSeeMore() {
     let seeMoreSpan = document.querySelectorAll(

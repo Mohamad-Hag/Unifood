@@ -37,6 +37,7 @@ class TabControl extends Component {
     });
     this.setState({ activeIndex: index });
     this.setState({ tabs: tabs });
+    target.scrollIntoView();
   }
   initiateTabs() {
     this.setState({ tabs: this.props.tabs });

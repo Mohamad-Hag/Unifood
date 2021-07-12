@@ -43,7 +43,7 @@ class App extends Component {
               render={(props) => <Products {...props} />}
             />
             <Route
-              path="/restaurants/name/:id"
+              path="/restaurant/:restaurant/product/:id"
               render={(props) => <Product {...props} />}
             />
           </Switch>

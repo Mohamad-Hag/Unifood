@@ -5,6 +5,9 @@ import PasswordBox from "../inputs/PasswordBox";
 import Badges from "../labels/Badges";
 import DefaultButton from "../inputs/DefaultButton";
 import MessageBox from "../alerts/MessageBox";
+import Cookies from "../assitance-methods/Cookies";
+import getHost from "../assitance-methods/getHost";
+import Axios from "axios";
 
 class ProfileSettings extends Component {
   constructor(props) {
@@ -23,6 +26,7 @@ class ProfileSettings extends Component {
       messageBoxDescription: "",
       messageBoxControls: "yes-no",
       currentDangerAction: "delete",
+      user: [],
     };
 
     // Binding Methods
@@ -33,20 +37,29 @@ class ProfileSettings extends Component {
     this.resetAccountClicked = this.resetAccountClicked.bind(this);
     this.logoutClicked = this.logoutClicked.bind(this);
     this.messageBoxValueSelected = this.messageBoxValueSelected.bind(this);
+    this.getUser = this.getUser.bind(this);
+  }
+  getUser() {
+    let formData = {
+      id: Cookies.get("id"),
+    };
+    let api = `${getHost()}/customer/getuser`;
+    Axios.post(api, formData).then((response) => {
+      let data = response.data.data;
+      this.setState({ user: data }, () => {
+        this.setState({ username: this.state.user.Name, phone: this.state.user.Phone });
+      });
+    });
   }
   messageBoxValueSelected(value) {
     if (value === "Yes") {
       let action = this.state.currentDangerAction;
-      if (action === "delete")
-      {
-        // Deletion Method        
-      }
-      else if (action === "logout")
-      {
-        // Loging out Method        
-      }
-      else if (action === "reset")
-      {
+      if (action === "delete") {
+        // Deletion Method
+      } else if (action === "logout") {
+        Cookies.set("id", "", 0);
+        window.location.href = "/entry";
+      } else if (action === "reset") {
         // Reseting Method
       }
     } else {
@@ -88,7 +101,9 @@ class ProfileSettings extends Component {
   phoneChanged(e) {
     this.setState({ phone: e.target.value });
   }
-  componentDidMount() {}
+  componentDidMount() {
+    this.getUser();
+  }
   componentDidUpdate() {}
   UNSAFE_componentWillReceiveProps(newPro) {}
   render() {

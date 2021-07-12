@@ -90,7 +90,13 @@
 {
     font-size: small;
 }
-.customer-review-card-bottom
+.customer-review-card-bottom-editable
+{
+    border: 2px solid var(--primary-color);
+    padding: 10px;
+    border-radius: 5px;
+}
+.customer-review-card-bottom-editable:focus
 {
 
 }

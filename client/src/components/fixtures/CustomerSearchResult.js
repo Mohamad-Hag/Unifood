@@ -33,7 +33,9 @@ class CustomerSearchResult extends Component {
         className="customer-search-result-container"
         id={this.props.id}
         ref={this.rootRef}
-        onClick={this.props.onClick}
+        onClick={() => {
+          window.location.href = this.props.to;
+        }}
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
         onMouseOver={this.props.onMouseOver}
