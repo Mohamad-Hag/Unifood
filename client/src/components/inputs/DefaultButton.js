@@ -46,21 +46,14 @@ class DefaultButton extends Component {
     currentClass += " " + this.props.className;
     this.setState({ class: currentClass });
     this.setState({ innerClass: innerClass });
-    if (this.props.bg && this.props.type === "fill") {
+    if (this.props.bg) {
       this.ref.current.style.backgroundColor = this.props.bg;
-      this.ref.current.style.borderColor = this.props.bg;
-    } else if (this.props.bg) {
-      this.ref.current.querySelectorAll("div")[0].style.Color = this.props.bg;
       this.ref.current.style.borderColor = this.props.bg;
     }
   }
   componentWillReceiveProps(newPro) {
-    if (newPro.bg && newPro.type === "fill") {
+    if (newPro.bg) {
       this.ref.current.style.backgroundColor = newPro.bg;
-      this.ref.current.style.borderColor = newPro.bg;
-    }
-    else if (newPro.bg && newPro.type === "outline") {      
-      this.ref.current.querySelector("div").style.Color = newPro.bg;
       this.ref.current.style.borderColor = newPro.bg;
     }
   }
