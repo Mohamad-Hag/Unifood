@@ -178,7 +178,7 @@ class Product extends Component {
   }
   getRestaurant() {
     let params = this.props.match.params;
-    let name = params.restaurant.replace("-", " ").trim();
+    let name = stringProcessor.decodeURLWord(params.restaurant);
     let restaurantData = { name: name };
     let api = `${getHost()}/customer/getrestaurantbyname`;
     Axios.post(api, restaurantData).then((response) => {
@@ -207,10 +207,11 @@ class Product extends Component {
   insertClicked() {
     let textbox = document.querySelector("#add-review-tbx");
     let text = textbox.value;
+    let sp = stringProcessor;
     let formDate = {
       pid: this.props.match.params.id,
       id: Cookies.get("id"),
-      text: text,
+      text: sp.escapeSQ(text),
     };
     let api = `${getHost()}/customer/addreview`;
     if (text === "") return;
@@ -354,8 +355,6 @@ class Product extends Component {
     box.style.display = "block";
   }
   addToFavorites() {
-    if (this.isBusy) return;
-    this.isBusy = true;
     let process = this.state.isFavorite ? "remove" : "add";
 
     let formData = {
@@ -366,8 +365,7 @@ class Product extends Component {
     let api = `${getHost()}/customer/addremovefavorite`;
 
     Axios.post(api, formData).then((response) => {
-      let data = response.data;
-      this.isBusy = true;
+      let data = response.data;      
     });
     this.setState({ isFavorite: !this.state.isFavorite });
   }

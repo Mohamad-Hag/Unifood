@@ -46,6 +46,7 @@ router.post("/", (req, res) => {
       notifications += `{"id": ${notid}, "from": "${from}", "description": "${description}", "isRead": ${isRead}, "time": "${time}" },`;
     });
     notifications = notifications.replace(/.$/, "]");
+    if (notifications === "]") notifications = JSON.stringify([]);
     res.send(notifications);
   });
 });

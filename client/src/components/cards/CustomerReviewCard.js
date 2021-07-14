@@ -2,6 +2,7 @@ import Axios from "axios";
 import React, { Component } from "react";
 import Cookies from "../assitance-methods/Cookies";
 import getHost from "../assitance-methods/getHost";
+import stringProcessor from "../assitance-methods/StringProcessor";
 import IconButton from "../inputs/IconButton";
 import "./styles/CustomerReviewCard.css";
 
@@ -36,10 +37,11 @@ class CustomerReviewCard extends Component {
   }
   reviewCardBlured(e) {
     let target = e.currentTarget;
-    let text = target.innerText.trim();
+    let text = target.innerText;
+    let sp = stringProcessor;
     let formData = {
       id: this.props.reviewId,
-      text: text,
+      text: sp.escapeSQ(text),
     };
     let api = `${getHost()}/customer/editreview`;
     if (text === "") {

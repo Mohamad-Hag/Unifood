@@ -10,11 +10,16 @@ class stringProcessor {
     return newText.trim();
   }
   static encodeURLWord(text) {
-    text = text.toLowerCase().replace(" ", "-").trim();
+    text = text.toLowerCase().replaceAll(" ", "-").trim();
     return text;
   }
   static decodeURLWord(text) {
-    text = text.toLowerCase().replace("-", " ").trim();
+    text = text.toLowerCase().replaceAll("-", " ").trim();
+    return text;
+  }
+  static escapeSQ(text)
+  {
+    text = text = text.trim().replaceAll("'", "''");
     return text;
   }
 }

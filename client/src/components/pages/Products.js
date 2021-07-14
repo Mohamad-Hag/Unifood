@@ -84,7 +84,8 @@ class Products extends Component {
   }
   getRestaurant() {
     let params = this.props.match.params;
-    let name = params.name.replace("-", " ").trim();
+    let sp = StringProcessor;
+    let name = sp.decodeURLWord(params.name);
     let restaurantData = { name: name };
     let api = `${getHost()}/customer/getrestaurantbyname`;
     Axios.post(api, restaurantData).then((response) => {
@@ -215,11 +216,10 @@ class Products extends Component {
 
     loader.style.display = "flex";
     if (filter === null) filter = this.state.selectedFilter;
-    if (category === null) category = "All";
+    if (category === null) category = "All";    
     Axios.post(`${getHost()}/customer/getproducts`, formData).then(
       (response) => {
-        let data = response.data;
-        console.log(data);
+        let data = response.data;        
         this.setState({ selectedCategory: category });
         if (filter === "Top Rated") {
           data = data.filter((prod) => prod.Rate >= 3);
@@ -430,7 +430,7 @@ class Products extends Component {
               selectedIndex={this.state.selectedFilterIndex}
               placeholder="Filter By"
               onValueSelected={this.filterSelected}
-            />
+            />            
           </div>
         </div>
         <main id="products-main">

@@ -12,6 +12,7 @@
 {
     max-width: 200px;
     min-width: 200px;
+    height: 100%;
     border-radius: 5px;
     object-position: center;
     object-fit: cover;        
@@ -92,6 +93,10 @@
     .category-card-image
     {
         min-height: 200px;
+    }
+    .category-card-container img
+    {
+        min-width: 100%;
     }
     .category-card-container h1:hover
     {

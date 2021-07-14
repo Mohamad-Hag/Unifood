@@ -141,8 +141,6 @@ class CustomerProductCard extends Component {
     if (loader) loader.remove();
   }
   addToFavorites() {
-    if (this.isBusy) return;
-    this.isBusy = true;
     let process = "add";
     if (this.state.isFavorite) process = "remove";
 
@@ -155,7 +153,6 @@ class CustomerProductCard extends Component {
 
     Axios.post(api, formData).then((response) => {
       let data = response.data;      
-      this.isBusy = true;
     });
     this.setState({ isFavorite: !this.state.isFavorite }, () => {
       if (this.props.removeOnFavorite)

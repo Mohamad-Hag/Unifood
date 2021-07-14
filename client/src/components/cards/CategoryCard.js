@@ -3,6 +3,7 @@ import DefaultButton from "../inputs/DefaultButton";
 import CircleLoader from "../loaders/CircleLoader";
 import "./styles/CategoryCard.css";
 import AOS from "aos";
+import StringProcessor from "../assitance-methods/StringProcessor";
 
 class CategoryCard extends Component {
   constructor(props) {
@@ -21,8 +22,11 @@ class CategoryCard extends Component {
     this.viewProductsClicked = this.viewProductsClicked.bind(this);
   }
   viewProductsClicked(e) {
-  if (this.props.restaurantName === undefined) return;
-  window.location.href = `/restaurants/${this.props.restaurantName.replace(" ", "-").toLowerCase()}?category=${this.props.category.toLowerCase().trim().replace(" ", "-")}`;
+    let sp = StringProcessor;
+    if (this.props.restaurantName === undefined) return;
+    window.location.href = `/restaurants/${sp.encodeURLWord(
+      this.props.restaurantName
+    )}?category=${sp.encodeURLWord(this.props.category)}`;
   }
   imageLoaded(e) {
     let parent = e.currentTarget.parentElement.children[1];
@@ -44,11 +48,11 @@ class CategoryCard extends Component {
       <div
         className="category-card-container"
         id={this.props.id}
-        ref={this.rootRef}        
+        ref={this.rootRef}
         onClick={this.props.onClick}
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
-        onMouseOver={this.props.onMouseOver}        
+        onMouseOver={this.props.onMouseOver}
       >
         <div className="category-card-image">
           <img

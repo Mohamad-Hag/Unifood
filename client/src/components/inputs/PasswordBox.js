@@ -7,37 +7,31 @@ class PasswordBox extends Component {
 
     //State Object
     this.state = {
-        foundError: false,
-        error: {
-          name: "",
-          password: "",
-        }
+      foundError: false,
+      error: {
+        name: "",
+        password: "",
+      },
     };
-    
+
     // Binding Methods
     this.togglePasswordShowing = this.togglePasswordShowing.bind(this);
   }
 
-  togglePasswordShowing(e)
-  {
-      let iconClass = e.target.getAttribute("class");
-      let newIconClass = (iconClass === "bi bi-eye") ? "bi bi-eye-slash": "bi bi-eye";
-      e.target.setAttribute("class", newIconClass);
-      let relatedInput = e.target.parentElement.parentElement.childNodes[0];
-      if (newIconClass === "bi bi-eye")
-      {
-          relatedInput.setAttribute("type", "password");
-      }
-      else
-      {
-          relatedInput.setAttribute("type", "text");
-      }
-      relatedInput.focus();
+  togglePasswordShowing(e) {
+    let iconClass = e.target.getAttribute("class");
+    let newIconClass =
+      iconClass === "bi bi-eye" ? "bi bi-eye-slash" : "bi bi-eye";
+    e.target.setAttribute("class", newIconClass);
+    let relatedInput = e.target.parentElement.parentElement.childNodes[0];
+    if (newIconClass === "bi bi-eye") {
+      relatedInput.setAttribute("type", "password");
+    } else {
+      relatedInput.setAttribute("type", "text");
+    }
+    relatedInput.focus();
   }
-  componentDidMount() 
-  {
-
-  }
+  componentDidMount() {}
 
   render() {
     return (
@@ -48,6 +42,8 @@ class PasswordBox extends Component {
             onChange={this.props.onChange}
             onInput={this.props.onInput}
             onBlur={this.props.onBlur}
+            onKeyUp={this.props.onKeyUp}
+            onKeyDown={this.props.onKeyDown}
             className="default-password-box"
             type="password"
             placeholder={this.props.placeholder}

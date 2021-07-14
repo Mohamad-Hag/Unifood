@@ -70,7 +70,9 @@ class CustomerSearch extends Component {
         (d) =>
           d.Name.toLowerCase().trim().includes(searchQuery) ||
           d.RestaurantName.toLowerCase().trim().includes(searchQuery)
-      );
+      ).sort((a, b) => {
+        return a.IsFavorite - b.IsFavorite;
+      });
       this.setState({ products: data });
     });
   }

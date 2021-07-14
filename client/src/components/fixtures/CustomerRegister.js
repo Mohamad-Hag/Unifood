@@ -16,6 +16,7 @@ import SignInCustomerImg from "../../assets/vectors/SignInCustomer.svg";
 import SearchSelectPopup from "../popups/SearchSelectPopup";
 import Axios from "axios";
 import getHost from "../assitance-methods/getHost";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class CustomerRegister extends Component {
   constructor(props) {
@@ -86,8 +87,9 @@ class CustomerRegister extends Component {
 
   // Tries to register a new user with his name, id and password.
   Register(name, id, password) {
+    let sp = stringProcessor;
     const userData = {
-      name: name,
+      name: sp.escapeSQ(name),
       id: id,
       password: password,
     };
@@ -238,6 +240,7 @@ class CustomerRegister extends Component {
               inputType="submit"
               loader={this.state.loader}
               iconClass="fa fa-arrow-right"
+              type="fill"
             />
           </form>
         </div>

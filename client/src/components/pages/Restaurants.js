@@ -116,7 +116,7 @@ class Restaurants extends Component {
     const id = Cookies.get("id");
     const postData = { id: id };
     await Axios.post(getNotificationsAPI, postData).then((response) => {
-      let data = response.data;
+      let data = response.data;      
       this.setState({
         notificationsCount: data.filter((x) => !x.isRead).length,
       });

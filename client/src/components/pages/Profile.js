@@ -192,7 +192,7 @@ class Profile extends Component {
             <DefaultButton
               id="browse-restaurants-btn"
               iconClass="bi bi-arrow-up-right-square"
-              text="Browse Restaurants"
+              text="Restaurants"
               onClick={() => {
                 window.location.href = "/restaurants";
               }}
@@ -216,7 +216,15 @@ class Profile extends Component {
             {
               text: "Settings",
               iconClass: "bi bi-gear",
-              content: <ProfileSettings />,
+              content: (
+                <ProfileSettings
+                  onInfoChanged={(name) => {
+                    let user = this.state.user;
+                    user.Name = name;
+                    this.setState({ user: user });
+                  }}
+                />
+              ),
             },
           ]}
         />

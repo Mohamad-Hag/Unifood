@@ -6,6 +6,9 @@ class DefaultButton extends Component {
   constructor(props) {
     super(props);
 
+    // Refs
+    this.ref = React.createRef();
+
     //State Object
     this.state = {
       class: "default-fill-btn",
@@ -43,6 +46,23 @@ class DefaultButton extends Component {
     currentClass += " " + this.props.className;
     this.setState({ class: currentClass });
     this.setState({ innerClass: innerClass });
+    if (this.props.bg && this.props.type === "fill") {
+      this.ref.current.style.backgroundColor = this.props.bg;
+      this.ref.current.style.borderColor = this.props.bg;
+    } else if (this.props.bg) {
+      this.ref.current.querySelectorAll("div")[0].style.Color = this.props.bg;
+      this.ref.current.style.borderColor = this.props.bg;
+    }
+  }
+  componentWillReceiveProps(newPro) {
+    if (newPro.bg && newPro.type === "fill") {
+      this.ref.current.style.backgroundColor = newPro.bg;
+      this.ref.current.style.borderColor = newPro.bg;
+    }
+    else if (newPro.bg && newPro.type === "outline") {      
+      this.ref.current.querySelector("div").style.Color = newPro.bg;
+      this.ref.current.style.borderColor = newPro.bg;
+    }
   }
 
   render() {
@@ -56,6 +76,7 @@ class DefaultButton extends Component {
         type={this.props.inputType}
         onMouseUp={this.props.onMouseUp}
         onMouseDown={this.props.onMouseDown}
+        ref={this.ref}
       >
         {this.props.loader ? (
           <CircleLoader

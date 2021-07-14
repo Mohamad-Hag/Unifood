@@ -1,5 +1,4 @@
 const express = require("express");
-// const { DBConnection } = require("../../assist/DBConnection");
 const fs = require("fs");
 const router = express.Router();
 
