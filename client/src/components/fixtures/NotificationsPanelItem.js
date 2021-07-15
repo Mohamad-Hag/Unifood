@@ -36,7 +36,6 @@ class NotificationsPanelItem extends Component {
     let api = `${getHost()}/customer/markasread`
     Axios.post(api, formData).then((response) => {
       let data = response.data;
-      console.log(data);
     });
   }
   addClickListenerToSeeMore() {

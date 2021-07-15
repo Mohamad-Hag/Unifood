@@ -295,8 +295,8 @@ class ProfileSettings extends Component {
         />
         <DefaultButton
           id="save-changes-btn"
-          text="Save Changes&nbsp;&nbsp;&nbsp;"
-          iconClass="bi bi-save"
+          text="Save Changes"
+          iconClass="bi bi-cloud-check"
           loader={this.state.loader}
           onClick={this.saveChangesClicked}
         />

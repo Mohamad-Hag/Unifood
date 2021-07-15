@@ -11,7 +11,7 @@ class IconButton extends Component {
     this.ref = React.createRef();
 
     // State Object
-    this.state = {      
+    this.state = {
       tooltip: null,
     };
 
@@ -19,10 +19,14 @@ class IconButton extends Component {
   }
 
   componentWillMount() {
-
+    if (this.props.tooltip !== undefined && this.props.tooltip !== "") {
+      this.setState({ tooltip: <Tooltip text={this.props.tooltip} /> });
+    } else {
+      this.setState({ tooltip: null });
+    }
   }
 
-  UNSAFE_componentWillReceiveProps(newPro) {    
+  UNSAFE_componentWillReceiveProps(newPro) {
     if (newPro.tooltip !== undefined && newPro.tooltip !== "") {
       this.setState({ tooltip: <Tooltip text={newPro.tooltip} /> });
     } else {
@@ -39,9 +43,8 @@ class IconButton extends Component {
         onClick={this.props.onClick}
         disabled={this.props.disabled}
       >
-        {this.props.count === undefined ? null        
-        : this.props.count === null ? null
-        : (
+        {this.props.count === undefined ? null : this.props.count ===
+          null ? null : (
           <p className="icon-btn-label">{this.props.count}</p>
         )}
         <i className={this.props.iconClass} style={this.props.iconStyle}></i>

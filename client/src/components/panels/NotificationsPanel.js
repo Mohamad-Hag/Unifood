@@ -44,7 +44,7 @@ class NotificationsPanel extends Component {
           $("#notifications-panel-footer").css("display", "none");
         } else {
           ReactDOM.render(
-            notifications.map((element) => {console.log(element.isRead);
+            notifications.map((element) => {
               return (
                 <NotificationsPanelItem
                   itemId={element.id}
@@ -114,6 +114,12 @@ class NotificationsPanel extends Component {
           <DefaultButton
             text="See All Notifications"
             iconClass="bi bi-chevron-right"
+            onClick={() => {
+              window.location.href =
+                this.props.notificationsLink
+                  ? this.props.notificationsLink
+                  : "#";
+            }}
           />
         </div>
       </div>

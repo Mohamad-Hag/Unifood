@@ -501,6 +501,7 @@ class Product extends Component {
           searchOnClick={this.searchClicked}
           profilePhoto={this.state.user.Image}
           profileLink="/profile"
+          notificationsLink="/notifications"
         />
 
         <div id="product-header">

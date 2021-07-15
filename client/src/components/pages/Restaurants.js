@@ -36,12 +36,12 @@ class Restaurants extends Component {
     this.setNotificationsCount = this.setNotificationsCount.bind(this);
     this.notificationsClicked = this.notificationsClicked.bind(this);
     this.searchClicked = this.searchClicked.bind(this);
+    this.getCartCount = this.getCartCount.bind(this);
     this.getCategories = this.getCategories.bind(this);
     this.getRestaurants = this.getRestaurants.bind(this);
     this.getchangeSelectedItemToIntersected =
       this.changeSelectedItemToIntersected.bind(this);
     this.expandMenuClicked = this.expandMenuClicked.bind(this);
-    this.getCartCount = this.getCartCount.bind(this);
     this.getUser = this.getUser.bind(this);
     this.checkSignIn = this.checkSignIn.bind(this);
   }
@@ -76,7 +76,7 @@ class Restaurants extends Component {
   }
   getRestaurants() {
     Axios.get(`${getHost()}/customer/getrestaurants`).then((response) => {
-      let data = response.data;
+      let data = response.data;    
       let newData = [];
       data.forEach((element, i) => {
         newData.push({
@@ -209,6 +209,8 @@ class Restaurants extends Component {
           searchOnClick={this.searchClicked}
           profilePhoto={this.state.user.Image}
           profileLink="/profile"
+          notificationsLink="/notifications"
+          notificationsLink="/notifications"
         />
         <main id="restaurants-main">
           <div id="restaurants-loader">

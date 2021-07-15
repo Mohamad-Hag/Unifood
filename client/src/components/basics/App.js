@@ -10,6 +10,7 @@ import MessageBox from "../alerts/MessageBox";
 import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Cart from "../pages/Cart";
+import Notifications from "../pages/Notifications";
 
 class App extends Component {
   constructor(props) {
@@ -37,6 +38,9 @@ class App extends Component {
             </Route>
             <Route exact component path="/restaurants">
               <Restaurants />
+            </Route>
+            <Route exact component path="/notifications">
+              <Notifications />
             </Route>
             <Route
               path="/restaurants/:name"

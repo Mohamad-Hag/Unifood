@@ -365,6 +365,7 @@ class Products extends Component {
           searchOnClick={this.searchClicked}
           profilePhoto={this.state.user.Image}
           profileLink="/profile"
+          notificationsLink="/notifications"
         />
         <div id="prodcuts-header">
           <div id="product-header-left">
@@ -430,7 +431,7 @@ class Products extends Component {
               selectedIndex={this.state.selectedFilterIndex}
               placeholder="Filter By"
               onValueSelected={this.filterSelected}
-            />            
+            />
           </div>
         </div>
         <main id="products-main">

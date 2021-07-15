@@ -13,6 +13,7 @@ class HeaderControl extends Component {
     this.state = {
       searchIcon: null,
       cartIcon: null,
+      notificationsIcon: null,
     };
 
     // Bindings Methods
@@ -42,6 +43,21 @@ class HeaderControl extends Component {
             count={this.props.cartCount}
             iconClass="bi bi-cart-fill"
             onClick={this.props.cartOnClick}
+          />
+        ),
+      });
+    }
+    if (this.props.isNotificationsVisible === "false") {
+      this.setState({ notificationsIcon: null });
+    } else {
+      this.setState({
+        notificationsIcon: (
+          <IconButton
+            tooltip="Notifications"
+            count={this.props.notificationsCount}
+            iconClass="bi bi-bell-fill"
+            id="notifications-icon-btn"
+            onClick={this.props.notificationsOnClick}
           />
         ),
       });
@@ -76,19 +92,28 @@ class HeaderControl extends Component {
         ),
       });
     }
+        if (newPro.isNotificationsVisible === "false") {
+          this.setState({ notificationsIcon: null });
+        } else {
+          this.setState({
+            notificationsIcon: (
+              <IconButton
+                tooltip="Notifications"
+                count={newPro.notificationsCount}
+                iconClass="bi bi-bell-fill"
+                id="notifications-icon-btn"
+                onClick={newPro.notificationsOnClick}
+              />
+            ),
+          });
+        }
   }
   render() {
     return (
       <div ref={this.ref} id="header-control-container">
         {this.state.searchIcon}
         {this.state.cartIcon}
-        <IconButton
-          tooltip="Notifications"
-          count={this.props.notificationsCount}
-          iconClass="bi bi-bell-fill"
-          id="notifications-icon-btn"
-          onClick={this.props.notificationsOnClick}
-        />
+        {this.state.notificationsIcon}
       </div>
     );
   }

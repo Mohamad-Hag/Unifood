@@ -173,6 +173,7 @@ class Profile extends Component {
           searchOnClick={this.searchClicked}
           profilePhoto={this.state.user.Image}
           profileLink="/profile"
+          notificationsLink="/notifications"
         />
         <div id="profile-intro">
           <label htmlFor="profile-img-fin" id="profile-img-container">

@@ -32,6 +32,7 @@ class Header extends Component {
             cartCount={this.props.cartCount}
             isSearchVisible={this.props.isSearchVisible}
             isCartVisible={this.props.isCartVisible}
+            isNotificationsVisible={this.props.isNotificationsVisible}
             cartOnClick={this.cartClicked}
             notificationsOnClick={this.props.notificationsOnClick}
             searchOnClick={this.props.searchOnClick}
@@ -51,6 +52,7 @@ class Header extends Component {
           onClose={this.props.onNotificationsClose}
           notificationsHandler={this.props.notificationsHandler}
           isOpen={this.props.isNotificationsOpen}
+          notificationsLink={this.props.notificationsLink}
         />
       ),
       isMenuOpen: "false",
@@ -101,6 +103,7 @@ class Header extends Component {
               cartCount={newPro.cartCount}
               isSearchVisible={newPro.isSearchVisible}
               isCartVisible={newPro.isCartVisible}
+              isNotificationsVisible={newPro.isNotificationsVisible}
               cartOnClick={this.cartClicked}
               notificationsOnClick={newPro.notificationsOnClick}
               searchOnClick={newPro.searchOnClick}
@@ -122,6 +125,7 @@ class Header extends Component {
             onClose={newPro.onNotificationsClose}
             notificationsHandler={newPro.notificationsHandler}
             isOpen={newPro.isNotificationsOpen}
+            notificationsLink={newPro.notificationsLink}
           />
         ),
         isMenuOpen: "false",
@@ -135,7 +139,7 @@ class Header extends Component {
           <div id="header-left">
             <IconButton
               tooltip="Menu"
-              iconClass="fa fa-bars"              
+              iconClass="fa fa-bars"
               onClick={this.openHeaderMenuClicked}
             />
             <a href="/">

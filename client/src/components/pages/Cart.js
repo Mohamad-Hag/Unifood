@@ -45,15 +45,15 @@ class Cart extends Component {
     this.getNotifications = this.getNotifications.bind(this);
     this.notificationsClicked = this.notificationsClicked.bind(this);
     this.searchClicked = this.searchClicked.bind(this);
+    this.setNotificationsCount = this.setNotificationsCount.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.checkSignIn = this.checkSignIn.bind(this);
     this.checkoutClicked = this.checkoutClicked.bind(this);
     this.continueClicked = this.continueClicked.bind(this);
     this.valueSelected = this.valueSelected.bind(this);
     this.getCartItems = this.getCartItems.bind(this);
     this.itemRemoved = this.itemRemoved.bind(this);
     this.itemChanged = this.itemChanged.bind(this);
-    this.setNotificationsCount = this.setNotificationsCount.bind(this);
-    this.getUser = this.getUser.bind(this);
-    this.checkSignIn = this.checkSignIn.bind(this);
   }
   itemRemoved(id) {
     let newItems = this.state.items.filter((item) => item.id !== id);
@@ -196,6 +196,7 @@ class Cart extends Component {
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
           profileLink="/profile"
+          notificationsLink="/notifications"
           profilePhoto={this.state.user.Image}
           isCartVisible="false"
         />
