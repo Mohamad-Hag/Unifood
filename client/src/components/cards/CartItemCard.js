@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import IconButton from "../inputs/IconButton";
 import "./styles/CartItemCard.css";
 import Badges from "../labels/Badges";
+import getHost from "../assitance-methods/getHost";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class CartItemCard extends Component {
   constructor(props) {
@@ -32,7 +34,7 @@ class CartItemCard extends Component {
       items = items.filter((item) => item.id !== this.state.id);
       let ct = 0;
       items.forEach((item) => {
-        ct = ct + item.price;
+        ct = ct + item.price;        
       });
       storage.setItem("cartTotal", ct);
       storage.setItem("items", JSON.stringify(items));

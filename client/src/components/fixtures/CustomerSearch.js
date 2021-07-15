@@ -12,6 +12,7 @@ import Axios from "axios";
 import getHost from "../assitance-methods/getHost";
 import Cookies from "../assitance-methods/Cookies";
 import StringProcessor from "../assitance-methods/StringProcessor";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class CustomerSearch extends Component {
   constructor(props) {
@@ -20,6 +21,9 @@ class CustomerSearch extends Component {
     // Refs
     this.ref = React.createRef();
 
+    // Vars
+    this.loadingCaption = "In progress...";
+
     // State Object
     this.state = {
       searchInSelectedIndex: "0",
@@ -27,6 +31,7 @@ class CustomerSearch extends Component {
       categories: [],
       restaurants: [],
       allRestaurants: [],
+      caption: 'Write then hit "enter" or click "search".',
     };
 
     // Binding Methods
@@ -63,17 +68,26 @@ class CustomerSearch extends Component {
       getAll: true,
       ignorRestaurant: true,
     };
+    this.setState({ caption: this.loadingCaption });
     searchQuery = searchQuery.toLowerCase().trim();
     const api = `${getHost()}/customer/getproducts`;
     Axios.post(api, formData).then((response) => {
-      let data = response.data.filter(
-        (d) =>
-          d.Name.toLowerCase().trim().includes(searchQuery) ||
-          d.RestaurantName.toLowerCase().trim().includes(searchQuery)
-      ).sort((a, b) => {
-        return a.IsFavorite - b.IsFavorite;
+      let data = response.data
+        .filter(
+          (d) =>
+            d.Name.toLowerCase().trim().includes(searchQuery) ||
+            d.RestaurantName.toLowerCase().trim().includes(searchQuery)
+        )
+        .sort((a, b) => {
+          return a.IsFavorite - b.IsFavorite;
+        });
+      this.setState({ products: data }, () => {
+        setTimeout(() => {
+          this.setState({
+            caption: 'Write then hit "enter" or click "search".',
+          });
+        }, 300);
       });
-      this.setState({ products: data });
     });
   }
   getCategories(searchQuery) {
@@ -83,13 +97,20 @@ class CustomerSearch extends Component {
     }
     searchQuery = searchQuery.toLowerCase().trim();
     const api = `${getHost()}/customer/getcategories`;
+    this.setState({ caption: this.loadingCaption });
     Axios.post(api).then((response) => {
       let data = response.data.filter(
         (d) =>
           d.Name.toLowerCase().trim().includes(searchQuery) ||
           d.RestaurantName.toLowerCase().trim().includes(searchQuery)
       );
-      this.setState({ categories: data });
+      this.setState({ categories: data }, () => {
+        setTimeout(() => {
+          this.setState({
+            caption: 'Write then hit "enter" or click "search".',
+          });
+        }, 300);
+      });
     });
   }
   getRestaurants(searchQuery) {
@@ -98,12 +119,19 @@ class CustomerSearch extends Component {
       return;
     }
     const api = `${getHost()}/customer/getrestaurants`;
+    this.setState({ caption: this.loadingCaption });
     Axios.get(api).then((response) => {
       let data = response.data.filter((d) =>
         d.Name.toLowerCase().trim().includes(searchQuery)
       );
       this.setState({ allRestaurants: response.data });
-      this.setState({ restaurants: data });
+      this.setState({ restaurants: data }, () => {
+        setTimeout(() => {
+          this.setState({
+            caption: 'Write then hit "enter" or click "search".',
+          });
+        }, 300);
+      });
     });
   }
   onSearchInValueSelected(value, index) {}
@@ -154,7 +182,7 @@ class CustomerSearch extends Component {
           <DefaultButton id="customer-search-btn" text="Search" />
         </div>
         <div id="customer-search-status">
-          <p>Write then hit "enter" or click "search".</p>
+          <p>{this.state.caption}</p>
         </div>
         <TabControl
           tabs={[
@@ -174,7 +202,9 @@ class CustomerSearch extends Component {
                           ? product.Price * (product.OfferPercentage / 100)
                           : product.Price),
                       rating: product.Rate,
-                      photo: product.Image,
+                      photo: `${getHost()}/images/restaurants/${StringProcessor.encodeURLWord(
+                        product.RestaurantName
+                      )}/products/${product.Image}`,
                       to: `/restaurant/${StringProcessor.encodeURLWord(
                         product.RestaurantName
                       )}/product/${product.ID}`,
@@ -194,8 +224,10 @@ class CustomerSearch extends Component {
                       resultId: category.ID,
                       title: category.Name,
                       caption: `From: ${category.RestaurantName}`,
-                      photo: category.Image,
-                      to: `/restaurants/${StringProcessor.encodeURLWord(
+                      photo: `${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+                        category.RestaurantName
+                      )}/categories/${category.Image}`,
+                      to: `/restaurants/${stringProcessor.encodeURLWord(
                         category.RestaurantName
                       )}?category=${StringProcessor.encodeURLWord(
                         category.Name
@@ -216,7 +248,9 @@ class CustomerSearch extends Component {
                       title: restaurant.Name,
                       caption:
                         restaurant.IsClosed === 0 ? "Open Now" : "Closed",
-                      photo: restaurant.Image,
+                      photo: `${getHost()}/images/restaurants/${StringProcessor.encodeURLWord(
+                        restaurant.Name
+                      )}/profile-image/profile.jpg`,
                       to: `/restaurants#restaurant${this.state.allRestaurants.findIndex(
                         (c) => c.ID === restaurant.ID
                       )}`,

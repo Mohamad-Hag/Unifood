@@ -197,7 +197,9 @@ class Cart extends Component {
           searchOnClick={this.searchClicked}
           profileLink="/profile"
           notificationsLink="/notifications"
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           isCartVisible="false"
         />
         <p id="cart-title">

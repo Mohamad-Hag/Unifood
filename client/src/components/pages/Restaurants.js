@@ -11,6 +11,7 @@ import Footer from "../fixtures/Footer";
 import IconButton from "../inputs/IconButton";
 import Cookies from "../assitance-methods/Cookies";
 import getHost from "../assitance-methods/getHost";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class Restaurants extends Component {
   constructor(props) {
@@ -207,7 +208,9 @@ class Restaurants extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           profileLink="/profile"
           notificationsLink="/notifications"
           notificationsLink="/notifications"
@@ -237,7 +240,7 @@ class Restaurants extends Component {
                           return (
                             <CategoryCard
                               key={prodcut.ID}
-                              photo={prodcut.Image}
+                              photo={`${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(restaurant.text)}/categories/${prodcut.Image}`}
                               category={prodcut.Name}
                               description={prodcut.Description}
                               restaurantName={restaurant.text}

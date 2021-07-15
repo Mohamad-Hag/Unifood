@@ -68,7 +68,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--main-bs);
+    box-shadow: 0 0 10px 5px #00000020;    
     display: none;
 }
 #expand-menu i

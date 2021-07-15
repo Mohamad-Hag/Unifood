@@ -21,7 +21,7 @@ router.post("/", (req, res) => {
     img.name
   )}`;  
   const relativeImagePath = `/images/customers/p${id}${path.extname(img.name)}`;
-  const dbPath = `http://localhost:9000${relativeImagePath}`;
+  const dbPath = `p${id}${path.extname(img.name)}`;
   let command = `UPDATE customer SET Image = '${dbPath}' WHERE UserID = ${id}`;
 
   img.mv(absoluteImagePath, (err) => {

@@ -12,21 +12,24 @@ let responseData = {
 
 router.post("/", (req, res) => {
   let id = parseInt(req.body.id);
-    
+  let getAll = req.body.getAll;
+
   let command = `SELECT * FROM notification WHERE UserID = ${id} ORDER BY Date DESC LIMIT 10`;
-  
+  if (getAll === true)
+    command = `SELECT * FROM notification WHERE UserID = ${id} ORDER BY Date DESC`;
+
   db.query(command, (err, result, fields) => {
-    if (err) {      
+    if (err) {
       printError(err.message, res);
       return;
-    }    
+    }
     let notifications = "[";
     result.forEach((notification) => {
       let notid = notification.ID;
       let description = notification.Text;
       let from = notification.Sender;
-      let isRead = notification.IsRead === 0 ? false : true;   
-      
+      let isRead = notification.IsRead === 0 ? false : true;
+
       let d = Date.parse(notification.Date.toString());
       let now = new Date().getTime();
       let left = generateTimeRemining(d, now);

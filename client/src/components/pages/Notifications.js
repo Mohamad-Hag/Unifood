@@ -49,7 +49,7 @@ class Notifications extends Component {
   async getNotifications() {
     const api = `${getHost()}/customer/getnotifications`;
     const id = Cookies.get("id");
-    const postData = { id: id };
+    const postData = { id: id, getAll: true };
     let loader = this.rootRef.current.querySelector(
       "#notifications-table-body-loading"
     );
@@ -124,7 +124,9 @@ class Notifications extends Component {
           searchOnClick={this.searchClicked}
           profileLink="/profile"
           notificationsLink="/notifications"
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           isNotificationsVisible="false"
         />
         <p id="notifications-title">

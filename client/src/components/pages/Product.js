@@ -183,7 +183,9 @@ class Product extends Component {
     let api = `${getHost()}/customer/getrestaurantbyname`;
     Axios.post(api, restaurantData).then((response) => {
       let data = response.data;
-      let image = data.Image;
+      let image = `${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+        data.Name
+      )}/profile-image/${data.Image}`;
       let isClosed = data.IsClosed;
       let id = data.ID;
       let restaurantName = data.Name;
@@ -328,7 +330,9 @@ class Product extends Component {
     if (productAdded) {
       items.push({
         id: parseInt(this.props.match.params.id),
-        photo: this.state.image,
+        photo: `${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+          this.state.restaurantName
+        )}/products/${this.state.image}`,
         name: this.state.name,
         price: parseInt(this.state.price) * this.state.counter,
         count: this.state.counter,
@@ -365,7 +369,7 @@ class Product extends Component {
     let api = `${getHost()}/customer/addremovefavorite`;
 
     Axios.post(api, formData).then((response) => {
-      let data = response.data;      
+      let data = response.data;
     });
     this.setState({ isFavorite: !this.state.isFavorite });
   }
@@ -499,7 +503,9 @@ class Product extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           profileLink="/profile"
           notificationsLink="/notifications"
         />
@@ -540,7 +546,11 @@ class Product extends Component {
           </div>
         </div>
         <div
-          style={{ backgroundImage: `url(${this.state.image})` }}
+          style={{
+            backgroundImage: `url(${`${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+              this.state.restaurantName
+            )}/products/${this.state.image}`})`,
+          }}
           id="product-intro"
         >
           <div id="product-intro-inner">
@@ -669,7 +679,7 @@ class Product extends Component {
                     dislikes={review.Dislike}
                     userId={review.UserID}
                     reviewId={review.ID}
-                    photo={review.Image}
+                    photo={`${getHost()}/images/customers/${review.Image}`}
                     canReact={review.CanReact}
                   />
                 );

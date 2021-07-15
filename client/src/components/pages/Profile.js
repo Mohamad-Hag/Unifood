@@ -171,7 +171,9 @@ class Profile extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           profileLink="/profile"
           notificationsLink="/notifications"
         />
@@ -179,7 +181,11 @@ class Profile extends Component {
           <label htmlFor="profile-img-fin" id="profile-img-container">
             <img
               id="profile-img"
-              src={this.state.user.Image ? this.state.user.Image : null}
+              src={
+                this.state.user.Image
+                  ? `${getHost()}/images/customers/${this.state.user.Image}`
+                  : null
+              }
               alt=""
             />
             <div id="profile-img-mask">

@@ -6,6 +6,7 @@ import CircleLoader from "../loaders/CircleLoader";
 import getHost from "../assitance-methods/getHost";
 import Cookies from "../assitance-methods/Cookies";
 import NoFavorites from "../../assets/vectors/NoFavorites.svg";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class FavoriteList extends Component {
   constructor(props) {
@@ -78,7 +79,9 @@ class FavoriteList extends Component {
                 name={favorite.Name}
                 price={`$ ${favorite.Price}`}
                 description={favorite.Description}
-                photo={favorite.Image}
+                photo={`${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+                  favorite.RestaurantName
+                )}/products/${favorite.Image}`}
                 onProductAdd={this.props.onProductAdd}
                 hasTags={hasTags}
                 isOffer={favorite.HasOffer ? true : false}

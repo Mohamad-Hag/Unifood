@@ -14,6 +14,7 @@ import Cookies from "../assitance-methods/Cookies";
 import IconButton from "../inputs/IconButton";
 import StringProcessor from "../assitance-methods/StringProcessor";
 import NoProductsImg from "../../assets/vectors/Empty.svg";
+import stringProcessor from "../assitance-methods/StringProcessor";
 
 class Products extends Component {
   constructor(props) {
@@ -89,8 +90,10 @@ class Products extends Component {
     let restaurantData = { name: name };
     let api = `${getHost()}/customer/getrestaurantbyname`;
     Axios.post(api, restaurantData).then((response) => {
-      let data = response.data;
-      let image = data.Image;
+      let data = response.data;      
+      let image = `${getHost()}/images/restaurants/${stringProcessor.encodeURLWord(
+        data.Name
+      )}/profile-image/${data.Image}`;
       let isClosed = data.IsClosed;
       let id = data.ID;
       let restaurantName = data.Name;
@@ -216,10 +219,10 @@ class Products extends Component {
 
     loader.style.display = "flex";
     if (filter === null) filter = this.state.selectedFilter;
-    if (category === null) category = "All";    
+    if (category === null) category = "All";
     Axios.post(`${getHost()}/customer/getproducts`, formData).then(
       (response) => {
-        let data = response.data;        
+        let data = response.data;console.log(data);
         this.setState({ selectedCategory: category });
         if (filter === "Top Rated") {
           data = data.filter((prod) => prod.Rate >= 3);
@@ -363,7 +366,9 @@ class Products extends Component {
           notificationsOnClick={this.notificationsClicked}
           notificationsHandler={this.getNotifications}
           searchOnClick={this.searchClicked}
-          profilePhoto={this.state.user.Image}
+          profilePhoto={`${getHost()}/images/customers/${
+            this.state.user.Image
+          }`}
           profileLink="/profile"
           notificationsLink="/notifications"
         />
@@ -459,7 +464,9 @@ class Products extends Component {
                     : product.Price)
                 }
                 description={product.Description}
-                photo={product.Image}
+                photo={`${getHost()}/images/restaurants/${StringProcessor.encodeURLWord(this.state.restaurantName)}/products/${
+                  product.Image
+                }`}
                 onProductAdd={this.productAdded}
                 hasTags={hasTags}
                 isOffer={product.HasOffer}
