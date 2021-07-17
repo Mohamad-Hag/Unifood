@@ -72,9 +72,9 @@ class Footer extends Component {
             <h4>Menu</h4>
             <div>
               <FooterLink text=".&nbsp;Home" to="/" />
-              <FooterLink text=".&nbsp;Services" to="/" />
-              <FooterLink text=".&nbsp;About Unifood" to="/" />
-              <FooterLink text=".&nbsp;Need Help" to="/" />
+              <FooterLink text=".&nbsp;Services" to="/services" />
+              <FooterLink text=".&nbsp;About Unifood" to="/about" />
+              <FooterLink text=".&nbsp;Need Help" to="/help" />
             </div>
           </div>
         </div>

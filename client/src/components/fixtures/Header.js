@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import IconButton from "../inputs/IconButton";
 import DefaultButton from "../inputs/DefaultButton";
 import "./styles/Header.css";
+import NothingImg from "../../assets/images/Nothing.png";
 
 // Assets
 import LightLogo from "../../assets/vectors/LightLogo.svg";
@@ -33,7 +34,7 @@ class Header extends Component {
             isSearchVisible={this.props.isSearchVisible}
             isCartVisible={this.props.isCartVisible}
             isNotificationsVisible={this.props.isNotificationsVisible}
-            cartOnClick={this.cartClicked}
+            cartOnClIsick={this.cartClicked}
             notificationsOnClick={this.props.notificationsOnClick}
             searchOnClick={this.props.searchOnClick}
           />
@@ -41,6 +42,10 @@ class Header extends Component {
             <img
               id="header-profile-photo"
               src={this.props.profilePhoto}
+              onError={(e) => {
+                e.currentTarget.setAttribute("src", NothingImg);
+              }}  
+              alt=""
               draggable="false"
             />
           </a>
@@ -112,6 +117,9 @@ class Header extends Component {
               <img
                 id="header-profile-photo"
                 src={newPro.profilePhoto}
+                onError={(e) => {
+                  e.currentTarget.setAttribute("src", NothingImg);
+                }}
                 draggable="false"
               />
             </a>
@@ -149,7 +157,16 @@ class Header extends Component {
           {this.state.headerControl}
         </header>
         {this.state.notificationsPanel}
-        <HeaderMenu isOpen={this.state.isMenuOpen} />
+        <HeaderMenu
+          activeIndex={this.props.activeMenuIndex}
+          isOpen={this.state.isMenuOpen}
+          onMenuOpen={() => {
+            console.log("open");
+          }}
+          onMenuClose={() => {
+            if (this.state.isMenuOpen === "true") this.setState({ isMenuOpen: "false" });
+          }}
+        />
         <CustomerSearch />
       </div>
     );

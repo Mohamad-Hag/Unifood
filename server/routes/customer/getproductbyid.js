@@ -13,12 +13,29 @@ router.post("/", (req, res) => {
   let pid = req.body.pid;
   let id = req.body.id;
 
-  const mainCommand = `SELECT t2.*, ROUND(AVG(t1.Value)) AS Rate, t3.Description AS OfferDescription, t3.Percentage AS OfferPercentage, t4.ID AS FavoriteID FROM ( SELECT * FROM rate ) t1 INNER JOIN( SELECT * FROM product ) t2 ON t1.ProductID = ${pid} AND t2.ID = ${pid} LEFT JOIN( SELECT * FROM offer ) t3 ON t3.ProductID = ${pid} AND t2.ID = ${pid} LEFT JOIN( SELECT * FROM favorite ) t4 ON t4.ProductID = ${pid} AND t4.CustomerID = (SELECT ID FROM customer WHERE UserID = ${id})`;
+  const mainCommand = `SELECT t2.*, ROUND(AVG(t1.Value)) AS Rate, t3.Description AS OfferDescription, t3.Percentage AS OfferPercentage, t4.ID AS FavoriteID, t5.IsExist FROM ( SELECT * FROM rate ) t1 INNER JOIN( SELECT * FROM product ) t2 ON t1.ProductID = ${pid} AND t2.ID = ${pid} LEFT JOIN( SELECT * FROM offer ) t3 ON t3.ProductID = ${pid} AND t2.ID = ${pid} LEFT JOIN( SELECT * FROM favorite ) t4 ON t4.ProductID = ${pid} AND t4.CustomerID = (SELECT ID FROM customer WHERE UserID = ${id}) INNER JOIN( SELECT * FROM restaurant ) t5 ON t5.IsExist = 1 AND t5.ID = (SELECT RestaurantID FROM category WHERE ID = (SELECT CategoryID from product WHERE ID = ${pid}))`;
 
   db.query(mainCommand, (err, result) => {
     if (err) {
       printError(err.message, res);
       return;
+    }
+    if (result[0].IsExist === null) {      
+      result[0] = {
+        ID: 26,
+        Name: "-------------------",
+        Price: 0.0,
+        Image: "-------------",
+        Description: "-------------------",
+        IsAvailable: 0,
+        CreationDate: "------------",
+        CategoryID: 0,
+        Rate: 0,
+        OfferDescription: null,
+        OfferPercentage: null,
+        FavoriteID: null,
+        IsExist: null,
+      };
     }
     let product = result[0];
     let percentage = product.OfferPercentage;

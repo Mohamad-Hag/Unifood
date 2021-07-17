@@ -50,6 +50,7 @@ class MessageBox extends Component {
   hideClicked(e) {
     if (e.target.getAttribute("class") === "message-box-container") {
       this.hides(300);
+      if (this.props.onClose) this.props.onClose();
     }
   }
   hides(after) {
@@ -67,9 +68,11 @@ class MessageBox extends Component {
       this.setState({ display: "block" });
       setTimeout(() => {
         this.setState({ transform: "translate(-50%, -50%)", opacity: "1" });
+        if (this.props.onOpen) this.props.onOpen();
       }, 10);
     } else if (newPro.isOpen === "false") {
       this.hides(300);
+      if (this.props.onClose) this.props.onClose();
     }
 
     if (newPro.type === "info") {
@@ -210,9 +213,11 @@ class MessageBox extends Component {
       this.setState({ display: "block" });
       setTimeout(() => {
         this.setState({ transform: "translate(-50%, -50%)", opacity: "1" });
+        if (this.props.onOpen) this.props.onOpen();
       }, 10);
     } else if (this.props.isOpen === "false") {
       this.hides(10);
+      if (this.props.onClose) this.props.onClose();
     }
 
     if (this.props.type === "info") {

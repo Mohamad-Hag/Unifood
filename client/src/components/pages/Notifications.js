@@ -6,7 +6,6 @@ import getHost from "../assitance-methods/getHost";
 import Cookies from "../assitance-methods/Cookies";
 import Header from "../fixtures/Header";
 import Footer from "../fixtures/Footer";
-import DefaultButton from "../inputs/DefaultButton";
 import CircleLoader from "../loaders/CircleLoader";
 import NoResultsImg from "../../assets/vectors/NoResults.svg";
 import CustomerNotificationCard from "../cards/CustomerNoticationCard";

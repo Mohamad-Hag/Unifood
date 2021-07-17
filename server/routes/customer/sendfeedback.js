@@ -1,7 +1,6 @@
 const express = require("express");
 const { DBConnection } = require("../../assist/DBConnection");
 const router = express.Router();
-
 const db = DBConnection.connect();
 
 let responseData = {
@@ -9,16 +8,20 @@ let responseData = {
   data: [],
   hasError: false,
 };
-let restaurants = [];
 
-router.get("/", (req, res) => {
-  let command = "SELECT user.Name, restaurant.* FROM restaurant, user WHERE user.ID = restaurant.UserID AND restaurant.IsExist = 1;";  
-  db.query(command, (err, result, fields) => {
+router.post("/", (req, res) => {
+  let text = req.body.text;
+  let email = req.body.email;
+
+  let command = `INSERT INTO feedback (Text, Email) VALUES ('${text}', '${email}')`;
+
+  db.query(command, (err, result) => {
     if (err) {
       printError(err.message, res);
       return;
     }
-    res.send(JSON.stringify(result));
+    responseData.message = "Process completed successfully!";
+    res.send(responseData);
   });
 });
 
@@ -27,4 +30,5 @@ function printError(message, res) {
   responseData.hasError = true;
   res.send(responseData);
 }
+
 module.exports = router;

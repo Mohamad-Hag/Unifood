@@ -13,7 +13,9 @@ class HeaderMenu extends Component {
     this.ref = React.createRef();
 
     // State Object
-    this.state = {};
+    this.state = {
+      open: false,
+    };
 
     // Bindings Methods
     this.closeMenuClicked = this.closeMenuClicked.bind(this);
@@ -26,15 +28,19 @@ class HeaderMenu extends Component {
     menu.css("left", "-300px");
     menuContainer.fadeOut(200);
     $("body").css("overflow", "unset");
+    this.setState({ open: false });
+    if (this.props.onMenuClose) this.props.onMenuClose();
   }
   openMenuClicked() {
     let menu = $("#header-menu");
-    let menuContainer = $("#header-menu-container");    
+    let menuContainer = $("#header-menu-container");
     menuContainer.fadeIn(200);
     setTimeout(() => {
-        menu.css("left", "0");
+      menu.css("left", "0");
     }, 1);
     $("body").css("overflow", "hidden");
+    this.setState({ open: true });
+    if (this.props.onMenuOpen) this.props.onMenuOpen();
   }
 
   componentDidMount() {
@@ -42,6 +48,7 @@ class HeaderMenu extends Component {
     let menu = $("#header-menu");
 
     if (this.props.isOpen === "true") {
+      this.setState({ open: true });
       menuContainer.show();
       menu.css("left", "0");
       $("body").css("overflow", "hidden");
@@ -49,11 +56,12 @@ class HeaderMenu extends Component {
       menuContainer.hide();
       menu.css("left", "-300px");
       $("body").css("overflow", "unset");
+      this.setState({ open: false });
     }
   }
 
   componentWillReceiveProps(newPro) {
-    if (newPro.isOpen === "true") { 
+    if (newPro.isOpen === "true") {
       this.openMenuClicked();
     } else {
       this.closeMenuClicked();
@@ -75,25 +83,28 @@ class HeaderMenu extends Component {
           </div>
           <div id="header-menu-links">
             <HeaderMenuLink
-              isActive="true"
+              isActive={this.props.activeIndex === 0 ? "true" : "false"}
               text="Home"
               iconClass="bi bi-house-fill"
               to="/"
             />
             <HeaderMenuLink
+              isActive={this.props.activeIndex === 1 ? "true" : "false"}
               text="Services"
               iconClass="bi bi-briefcase-fill"
-              to="#"
+              to="/services"
             />
             <HeaderMenuLink
+              isActive={this.props.activeIndex === 2 ? "true" : "false"}
               text="About Unifood"
               iconClass="bi bi-info-square-fill"
-              to="#"
+              to="/about"
             />
             <HeaderMenuLink
+              isActive={this.props.activeIndex === 3 ? "true" : "false"}
               text="Need Help"
               iconClass="bi bi-question-square-fill"
-              to="#"
+              to="/help"
             />
           </div>
         </div>

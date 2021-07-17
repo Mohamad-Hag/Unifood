@@ -72,6 +72,7 @@ class CustomerSearch extends Component {
     searchQuery = searchQuery.toLowerCase().trim();
     const api = `${getHost()}/customer/getproducts`;
     Axios.post(api, formData).then((response) => {
+      console.log(response.data.message);
       let data = response.data
         .filter(
           (d) =>

@@ -2,17 +2,14 @@ import React, { Component } from "react";
 import Header from "../fixtures/Header";
 import "./styles/Home.css";
 import profilePhoto from "../../assets/images/Myphoto.jpg";
-import SpecialEventImg from "../../assets/vectors/SpecialEvent.svg";
 import CustomerIllImg from "../../assets/vectors/customer-ill.svg";
 import UniversityIllImg from "../../assets/vectors/university-ill.svg";
 import RestaurantIllImg from "../../assets/vectors/restaurant-ill.svg";
 import Footer from "../fixtures/Footer";
 import DefaultButton from "../inputs/DefaultButton";
-import IconButton from "../inputs/IconButton";
 import $ from "jquery";
 import AOS from "aos";
 import HomeCard from "../cards/HomeCard";
-import Axios from "axios";
 
 class Home extends Component {
   constructor(props) {
@@ -120,6 +117,7 @@ class Home extends Component {
           cartCount={this.state.cartCount}
           notificationsCount={this.state.notificationsCount}
           isHome="true"
+          activeMenuIndex={0}
         />
         <section id="intro-section">
           <svg
@@ -631,7 +629,7 @@ class Home extends Component {
             data-aos-once="true"
             data-aos-duration="1000"
           >
-            <span>Customer ordering process</span>
+            <span>Customer Ordering Process</span>
             <p>
               We are trying to make ordering process more easier than any of the
               ordering apps. by filtering the products of any restaurant and
@@ -642,6 +640,9 @@ class Home extends Component {
             <DefaultButton
               text="Read more&nbsp;&nbsp;"
               iconClass="bi bi-box-arrow-up-right"
+              onClick={() => {
+                window.location.href = "/services";
+              }}
             />
           </div>
         </section>
@@ -668,6 +669,9 @@ class Home extends Component {
             <DefaultButton
               text="Read more&nbsp;&nbsp;"
               iconClass="bi bi-box-arrow-up-right"
+              onClick={() => {
+                window.location.href = "/services";
+              }}
             />
           </div>
         </section>
@@ -687,7 +691,7 @@ class Home extends Component {
           >
             <span>University Dashboard</span>
             <p>
-              university can show statistics about their restaurants and the
+              University can show statistics about their restaurants and the
               users of that restaurants by providing an easy dashboard to keep
               track of some inforamtions such as how many orders made until
               current time and other useful info.
@@ -695,6 +699,9 @@ class Home extends Component {
             <DefaultButton
               text="Read more&nbsp;&nbsp;"
               iconClass="bi bi-box-arrow-up-right"
+              onClick={() => {
+                window.location.href = "/services";
+              }}
             />
           </div>
         </section>

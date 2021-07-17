@@ -4,10 +4,8 @@ import "./styles/Restaurants.css";
 import $ from "jquery";
 import ItemsSidebar from "../sidebars/ItemsSidebar";
 import CategoryCard from "../cards/CategoryCard";
-import Photo from "../../assets/images/Myphoto.jpg";
 import Axios from "axios";
 import CircleLoader from "../loaders/CircleLoader";
-import Footer from "../fixtures/Footer";
 import IconButton from "../inputs/IconButton";
 import Cookies from "../assitance-methods/Cookies";
 import getHost from "../assitance-methods/getHost";
@@ -29,6 +27,7 @@ class Restaurants extends Component {
       restaurants: [],
       expandMenuIcon: "fa fa-chevron-up",
       user: {},
+      
     };
 
     // Binding Methods
@@ -90,7 +89,7 @@ class Restaurants extends Component {
       this.setState({ restaurants: newData }, () => {
         document.querySelector("#restaurants-loader").style.display = "none";
         let hash = window.location.hash;
-        if (hash) document.querySelector(hash).scrollIntoView();
+        if (hash && document.querySelector(hash)) document.querySelector(hash).scrollIntoView();
       });
     });
   }

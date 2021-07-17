@@ -329,6 +329,10 @@ class ProfileSettings extends Component {
           type={this.state.messageBoxType}
           isOpen={this.state.isMessageBoxOpen}
           onValueSelected={this.messageBoxValueSelected}
+          onClose={() => {
+            if (this.state.isMessageBoxOpen === "true")
+              this.setState({ isMessageBoxOpen: "false" });
+          }}
         />
       </div>
     );

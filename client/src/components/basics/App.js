@@ -11,6 +11,9 @@ import Product from "../pages/Product";
 import Profile from "../pages/Profile";
 import Cart from "../pages/Cart";
 import Notifications from "../pages/Notifications";
+import Help from "../pages/Help";
+import About from "../pages/About";
+import Services from "../pages/Services";
 
 class App extends Component {
   constructor(props) {
@@ -41,6 +44,15 @@ class App extends Component {
             </Route>
             <Route exact component path="/notifications">
               <Notifications />
+            </Route>
+            <Route exact component path="/help">
+              <Help />
+            </Route>
+            <Route exact component path="/about">
+              <About />
+            </Route>
+            <Route exact component path="/services">
+              <Services />
             </Route>
             <Route
               path="/restaurants/:name"

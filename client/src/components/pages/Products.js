@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import Header from "../fixtures/Header";
 import "./styles/Products.css";
 import $ from "jquery";
-import p1 from "../../assets/images/size_800_product_image.jpg";
-import p2 from "../../assets/images/deephouse.jpg";
 import CustomerProductCard from "../cards/CustomerProductCard";
 import Footer from "../fixtures/Footer";
 import SelectBox from "../inputs/SelectBox";
@@ -222,7 +220,8 @@ class Products extends Component {
     if (category === null) category = "All";
     Axios.post(`${getHost()}/customer/getproducts`, formData).then(
       (response) => {
-        let data = response.data;console.log(data);
+        let data = response.data;
+        if (data.hasError) window.location.replace("/restaurants");
         this.setState({ selectedCategory: category });
         if (filter === "Top Rated") {
           data = data.filter((prod) => prod.Rate >= 3);

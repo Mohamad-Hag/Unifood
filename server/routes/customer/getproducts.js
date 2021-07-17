@@ -22,13 +22,13 @@ router.post("/", (req, res) => {
 
   // SQL Statements------------------------------------
   let categoryIdCommand = `SELECT ID FROM category WHERE Name = LOWER('${category}') AND RestaurantID = ${restId}`;
-  let productsCommand = `SELECT * FROM product WHERE CategoryID = ?`;
+  let productsCommand = `SELECT p.* FROM product p, restaurant r WHERE p.CategoryID = ? AND r.IsExist = 1 AND r.ID = ${restId}`;
   if (getAll) {
     categoryIdCommand = `SELECT ID FROM category`;
-    productsCommand = `SELECT * FROM product WHERE CategoryID IN (SELECT ID FROM category WHERE RestaurantID = ${restId})`;
+    productsCommand = `SELECT p.* FROM product p, restaurant r WHERE p.CategoryID IN (SELECT ID FROM category WHERE RestaurantID = ${restId}) AND r.IsExist = 1 AND r.ID = ${restId}`;
   }
   if (ignorRestaurant) {
-    productsCommand = `SELECT p.*, u.Name AS RestaurantName, c.Name AS CategoryName FROM product p, category c, user u, restaurant r WHERE r.UserID = u.ID AND c.RestaurantID = r.ID and p.CategoryID = c.ID`;
+    productsCommand = `SELECT p.*, u.Name AS RestaurantName, c.Name AS CategoryName FROM product p, category c, user u, restaurant r WHERE r.UserID = u.ID AND c.RestaurantID = r.ID and p.CategoryID = c.ID AND r.IsExist = 1`;
   }
   let customerIdCommand = `SELECT ID FROM customer WHERE UserID = ${id}`;
   let favoritesCommand = `SELECT ProductID FROM favorite WHERE CustomerID = ?`;

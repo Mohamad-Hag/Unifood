@@ -29,6 +29,7 @@ var uploadProfilePhoto = require("./routes/customer/uploadprofilephoto");
 var getOrders = require("./routes/customer/getorders");
 var changeInfo = require("./routes/customer/changeinfo");
 var removeNotification = require("./routes/customer/removenotification");
+var sendFeedback = require("./routes/customer/sendfeedback");
 
 var app = express();
 
@@ -67,6 +68,7 @@ app.use("/customer/uploadprofilephoto", uploadProfilePhoto);
 app.use("/customer/getorders", getOrders);
 app.use("/customer/changeinfo", changeInfo);
 app.use("/customer/removenotification", removeNotification);
+app.use("/customer/sendfeedback", sendFeedback);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

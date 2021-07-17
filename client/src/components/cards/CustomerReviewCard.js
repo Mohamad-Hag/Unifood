@@ -57,7 +57,7 @@ class CustomerReviewCard extends Component {
       console.log(data);
     });
   }
-  reviewCardDoubleClicked(e) {    
+  reviewCardDoubleClicked(e) {
     if (this.props.userId !== parseInt(Cookies.get("id"))) return;
     let target = e.currentTarget;
     let text = target.innerText.trim();

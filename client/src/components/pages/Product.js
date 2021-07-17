@@ -1,11 +1,8 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
 import "./styles/Product.css";
 import $, { contains } from "jquery";
 import Header from "../fixtures/Header";
 import Axios from "axios";
-import p2 from "../../assets/images/deephouse.jpg";
-import p1 from "../../assets/images/Myphoto.jpg";
 import NoCommentsImg from "../../assets/vectors/NoComments.svg";
 import Footer from "../fixtures/Footer";
 import Badges from "../labels/Badges";
@@ -46,6 +43,7 @@ class Product extends Component {
       offerTooltip: undefined,
       isAvailable: true,
       image: null,
+      isExist: 1,
       cartButton: {
         text: (
           <span style={{ color: "var(--secondry-text-color)" }}>
@@ -220,18 +218,17 @@ class Product extends Component {
     textbox.value = "";
     Axios.post(api, formDate).then((response) => {
       let data = response.data;
-      console.log(data);
       this.setState({
         reviews: [
           {
-            ID: data.ID,
+            ID: data.data.ID,
             Name: this.state.user.Name,
             Image: this.state.user.Image,
             Text: text,
             Date: "Just Now",
             Like: 0,
             Dislike: 0,
-            UserID: 0,
+            UserID: parseInt(Cookies.get("id")),
             canReact: false,
           },
           ...this.state.reviews,
@@ -442,6 +439,7 @@ class Product extends Component {
     const api = `${getHost()}/customer/getproductbyid`;
     Axios.post(api, formData).then((response) => {
       let data = response.data;
+      if (data.IsExist === null) window.location.replace("/restaurants");
       let hasTags = false;
       if (data.HasOffer || !Boolean(data.IsAvailable) || data.IsNew)
         hasTags = true;
@@ -462,6 +460,7 @@ class Product extends Component {
           offerTooltip: data.HasOffer ? data.OfferDescription : null,
           isAvailable: Boolean(data.IsAvailable),
           image: data.Image,
+          isExist: data.IsExist,
         },
         () => {
           this.checkAddToCart();
